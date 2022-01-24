@@ -1,12 +1,16 @@
 package io.socol.opticubes.fx;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.TessellatorUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -165,6 +169,18 @@ public class RegionRenderer {
             tessellator.addVertexWithUV(0, 0, 0, 0, 0);
             tessellator.addVertexWithUV(dx1, dy1, dz1, u, 0);
             tessellator.addVertexWithUV(x3 + dx1, y3 + dy1, z3 + dz1, u, h);
+        }
+    }
+
+    public static class EventListener {
+
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public void onRender(RenderWorldLastEvent event) {
+            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            if (player == null) {
+                return;
+            }
+            RegionRenderer.drawAll();
         }
     }
 }

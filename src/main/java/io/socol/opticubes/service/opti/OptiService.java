@@ -1,15 +1,19 @@
-package io.socol.opticubes.service;
+package io.socol.opticubes.service.opti;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import io.socol.opticubes.fx.RegionRenderer;
+import io.socol.opticubes.items.ItemOptiWrench;
+import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
+import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -85,18 +89,26 @@ public class OptiService {
             }
 
             ItemStack held = player.getHeldItem();
-            if (held == null || !(held.getItem() instanceof OptiWrench)) {
+            if (!ItemOptiWrench.isOptiWrench(held)) {
                 return;
             }
 
-
             for (OptiCube optiCube : optiCubes.values()) {
                 if (optiCube.getRegion().isInFrustum()) {
-                    int color = optiCube.isEnabled() ? 0xFF808080 : 0xFF3590FF;
-                    RegionRenderer.addRegion(optiCube.getRegion(), color, 1 / 32f);
+                    boolean editing = ClientOptiCubeEditingService.getInstance().isEditingRegion(
+                            player.getEntityWorld(), optiCube.getPos(), OptiCubeRegionType.AFFECTED_REGION
+                    );
+
+                    if (editing) {
+                        float time = player.ticksExisted + event.partialTicks;
+                        float animation = MathHelper.sin((float) Math.toRadians(time * 20));
+                        RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A, 1 / 16f + animation * 1 / 32f);
+                    } else {
+                        int color = optiCube.isEnabled() ? 0xFF808080 : 0xFF3590FF;
+                        RegionRenderer.addRegion(optiCube.getRegion(), color, 1 / 32f);
+                    }
                 }
             }
-            RegionRenderer.drawAll();
         }
     }
 }

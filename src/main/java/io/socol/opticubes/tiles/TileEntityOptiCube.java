@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.server.management.PlayerManager;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityOptiCube extends TileEntity {
@@ -45,30 +46,39 @@ public class TileEntityOptiCube extends TileEntity {
         if (pkt.getNbtCompound() != null) {
             readCommon(pkt.getNbtCompound());
         }
-        if (OptiCubes.isClient()) {
-            OptiCubes.getService().addOptiCube(this);
+        if (worldObj != null && worldObj.isRemote) {
+            OptiCubes.getOptiService().addOptiCube(this);
         }
     }
 
     @Override
     public void onChunkUnload() {
-        if (OptiCubes.isClient()) {
-            OptiCubes.getService().removeOptiCube(this);
+        if (worldObj != null && worldObj.isRemote) {
+            OptiCubes.getOptiService().removeOptiCube(this);
         }
     }
 
     @Override
     public void invalidate() {
         super.invalidate();
-        OptiCubes.getService().removeOptiCube(this);
+        if (worldObj != null && worldObj.isRemote) {
+            OptiCubes.getOptiService().removeOptiCube(this);
+        }
     }
 
     public Region getAffectedRegion() {
-        return new Region(-7, 0, -7, 8, 3, 8);
-//        return affectedRegion;
+        return affectedRegion;
     }
 
     public double getRadius() {
         return 8;
+    }
+
+    public void setAffectedRegion(Region affectedRegion) {
+        this.affectedRegion = affectedRegion;
+        if (worldObj != null && !worldObj.isRemote) {
+            this.markDirty();
+            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package io.socol.opticubes.service;
+package io.socol.opticubes.service.opti;
 
 import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.Region;

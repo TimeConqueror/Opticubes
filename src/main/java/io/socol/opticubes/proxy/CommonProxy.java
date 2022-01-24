@@ -5,6 +5,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.registry.OptiItems;
+import io.socol.opticubes.registry.OptiNetwork;
 import io.socol.opticubes.registry.OptiTiles;
 
 public abstract class CommonProxy {
@@ -13,6 +14,7 @@ public abstract class CommonProxy {
         OptiItems.register();
         OptiBlocks.register();
         OptiTiles.register();
+        OptiNetwork.register();
 
 //        baublesHere = Loader.isModLoaded("baubles");
 //        ModConfig.init(event.getSuggestedConfigurationFile());

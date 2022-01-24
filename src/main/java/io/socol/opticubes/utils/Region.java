@@ -26,6 +26,35 @@ public class Region {
         this.z1 = z1;
     }
 
+    public Region(BlockPos pos) {
+        this(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1);
+    }
+
+    public Region(BlockPos pos1, BlockPos pos2) {
+        this.x0 = Math.min(pos1.x, pos2.x);
+        this.y0 = Math.min(pos1.y, pos2.y);
+        this.z0 = Math.min(pos1.z, pos2.z);
+        this.x1 = Math.max(pos1.x, pos2.x) + 1;
+        this.y1 = Math.max(pos1.y, pos2.y) + 1;
+        this.z1 = Math.max(pos1.z, pos2.z) + 1;
+    }
+
+    public static Region createAndFix(int x0, int y0, int z0, int x1, int y1, int z1) {
+        return new Region(
+                Math.min(x0, x1),
+                Math.min(y0, y1),
+                Math.min(z0, z1),
+                Math.max(x0, x1),
+                Math.max(y0, y1),
+                Math.max(z0, z1)
+        );
+    }
+
+    @Nullable
+    public static Region tryRecreate(@Nullable Region region) {
+        return region == null ? null : tryCreate(region.x0, region.y0, region.z0, region.x1, region.y1, region.z1);
+    }
+
     @Nullable
     public static Region tryCreate(int x0, int y0, int z0, int x1, int y1, int z1) {
         return x0 < x1 && y0 < y1 && z0 < z1 ? new Region(x0, y0, z0, x1, y1, z1) : null;
@@ -115,5 +144,9 @@ public class Region {
                 y1 - RenderManager.renderPosY,
                 z1 - RenderManager.renderPosZ
         );
+    }
+
+    public Region asRelative(BlockPos opiCubePos) {
+        return move(-opiCubePos.x, -opiCubePos.y, -opiCubePos.z);
     }
 }

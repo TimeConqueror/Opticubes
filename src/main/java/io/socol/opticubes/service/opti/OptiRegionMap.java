@@ -1,4 +1,4 @@
-package io.socol.opticubes.service;
+package io.socol.opticubes.service.opti;
 
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.utils.Region;

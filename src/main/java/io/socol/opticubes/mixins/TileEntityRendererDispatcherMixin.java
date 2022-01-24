@@ -17,7 +17,7 @@ public class TileEntityRendererDispatcherMixin {
 
     @Inject(method = "renderTileEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getLightBrightnessForSkyBlocks(IIII)I", shift = At.Shift.BEFORE), cancellable = true)
     public void onTileRender(TileEntity tile, float partialTicks, CallbackInfo ci) {
-        if (OptiCubes.getService().skipTileRender(tile)) {
+        if (OptiCubes.getOptiService().skipTileRender(tile)) {
             ci.cancel();
         }
     }
