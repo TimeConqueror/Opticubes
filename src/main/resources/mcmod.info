@@ -1,0 +1,16 @@
+[
+{
+  "modid": "opticubes",
+  "name": "OptiCubes",
+  "description": "",
+  "version": "${modVersion}",
+  "mcversion": "${minecraftVersion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Socolio", "Time_Conqueror"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

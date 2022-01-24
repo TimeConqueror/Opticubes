@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.7.11",
+  "package": "io.socol.opticubes.mixins",
+  "plugin": "io.socol.opticubes.mixinplugin.MixinPlugin",
+  "refmap": "mixins.opticubes.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8"
+}
+
