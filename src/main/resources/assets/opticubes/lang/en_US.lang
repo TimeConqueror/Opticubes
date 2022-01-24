@@ -2,3 +2,9 @@
 tile.opticubes.opticube.name=Opti-Cube
 # Items
 item.opticubes.optiwrench.name=Opti-Wrench
+# Usage
+item.opticubes.optiwrench.usage.held=Held in hand to view Opti-Cube regions
+item.opticubes.optiwrench.usage.start_region_editing=<Sneak + R-Click> on Opti-Cube to edit its region
+item.opticubes.optiwrench.usage.stop_region_editing=<Sneak + R-Click> on any block to stop region editing
+item.opticubes.optiwrench.usage.create_region=<R-Click> on any two blocks during region editing to define region
+item.opticubes.optiwrench.usage.change_radius=Target Opti-Cube and scroll wheel to change Opti-Cube radius

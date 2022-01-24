@@ -5,11 +5,15 @@ import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.utils.pos.BlockPos;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public class ItemOptiWrench extends Item {
 
@@ -37,6 +41,22 @@ public class ItemOptiWrench extends Item {
             }
         }
         return false;
+    }
+
+    @Override
+    public EnumRarity getRarity(ItemStack stack) {
+        return EnumRarity.rare;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void addInformation(ItemStack stack, EntityPlayer player, List target, boolean advancedTooltips) {
+        List<String> tooltip = (List<String>) target;
+        tooltip.add(I18n.format("item.opticubes.optiwrench.usage.held"));
+        tooltip.add(I18n.format("item.opticubes.optiwrench.usage.start_region_editing"));
+        tooltip.add(I18n.format("item.opticubes.optiwrench.usage.stop_region_editing"));
+        tooltip.add(I18n.format("item.opticubes.optiwrench.usage.create_region"));
+        tooltip.add(I18n.format("item.opticubes.optiwrench.usage.change_radius"));
     }
 
     public static boolean isOptiWrench(ItemStack stack) {
