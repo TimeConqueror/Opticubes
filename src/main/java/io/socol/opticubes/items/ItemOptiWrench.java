@@ -16,6 +16,7 @@ public class ItemOptiWrench extends Item {
     public ItemOptiWrench() {
         setTextureName(OptiCubes.MODID + ":optiwrench");
         setFull3D();
+        setMaxStackSize(1);
     }
 
     @Override

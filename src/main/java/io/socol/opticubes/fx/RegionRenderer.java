@@ -44,7 +44,6 @@ public class RegionRenderer {
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_BLEND);
 
-
         tessellator.startDrawingQuads();
         tessellator.setBrightness(240);
 
@@ -59,8 +58,7 @@ public class RegionRenderer {
         tessellator.draw();
         tessellator.setColorRGBA_F(1f, 1f, 1f, 1f);
         tessellator.setTranslation(0, 0, 0);
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_BLEND);
 
         regions.clear();
     }
