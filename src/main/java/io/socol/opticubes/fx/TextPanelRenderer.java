@@ -33,8 +33,13 @@ public class TextPanelRenderer {
         } else {
             int angle = (int) ((Minecraft.getMinecraft().thePlayer.rotationYaw + 45) / 90);
             GL11.glRotated(180 - angle * 90, 0, 1, 0);
-            GL11.glTranslated(0.025, 0.52, -60 / 16f * scale);
-            GL11.glRotated(-90, 1, 0, 0);
+            if (side == 1) {
+                GL11.glTranslated(0.025, 0.52, -60 / 16f * scale);
+                GL11.glRotated(-90, 1, 0, 0);
+            } else {
+                GL11.glTranslated(0.025, -0.52, 60 / 16f * scale);
+                GL11.glRotated(90, 1, 0, 0);
+            }
         }
 
         GL11.glScalef(scale, -scale, scale);

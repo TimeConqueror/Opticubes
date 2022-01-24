@@ -1,6 +1,5 @@
 package io.socol.opticubes.service.opti;
 
-import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
@@ -13,15 +12,6 @@ public class OptiRegionMap {
 
     public void add(OptiCube optiCube) {
         optiCube.setAffectedChunks(splitByChunks(optiCube));
-    }
-
-    public void drawRegions() {
-        for (OptiChunk chunk : chunks.values()) {
-            for (OptiRegion region : chunk.regions.values()) {
-                RegionRenderer.addRegion(region.boundary, 0xFFFFFFFF, -1 / 16f);
-            }
-        }
-        RegionRenderer.drawAll();
     }
 
     public void remove(OptiCube optiCube) {
