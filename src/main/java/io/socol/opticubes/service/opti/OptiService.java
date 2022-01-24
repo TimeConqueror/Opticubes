@@ -111,4 +111,8 @@ public class OptiService {
             }
         }
     }
+
+    public OptiCube getOptiCube(BlockPos blockPos) {
+        return optiCubes.get(blockPos);
+    }
 }

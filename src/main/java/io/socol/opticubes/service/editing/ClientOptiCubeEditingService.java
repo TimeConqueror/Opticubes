@@ -1,11 +1,16 @@
 package io.socol.opticubes.service.editing;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.fx.RegionRenderer;
+import io.socol.opticubes.fx.TextPanelRenderer;
 import io.socol.opticubes.items.ItemOptiWrench;
 import io.socol.opticubes.network.serverbound.StopOptiCubeRegionEditingMessage;
+import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.registry.OptiNetwork;
+import io.socol.opticubes.service.opti.OptiCube;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
@@ -22,17 +27,19 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
     private OptiCubeRegionEditingSession currentRegionEditingSession = null;
     private BlockPos firstRegionPoint;
 
+    private OptiCubeRadiusEditingSession currentRadiusEditingSession = null;
+
     public ClientOptiCubeEditingService() {
+        FMLCommonHandler.instance().bus().register(new ForgeListener());
         MinecraftForge.EVENT_BUS.register(new EventListener());
     }
 
-    @Nullable
     public OptiCubeRegionEditingSession getCurrentRegionEditingSession() {
         return currentRegionEditingSession;
     }
 
-    public void startNewRegionEditingSession(BlockPos opiCubePos, OptiCubeRegionType type, World world) {
-        this.currentRegionEditingSession = new OptiCubeRegionEditingSession(opiCubePos, type, world.getTotalWorldTime());
+    public void startNewRegionEditingSession(BlockPos optiCubePos, OptiCubeRegionType type, World world) {
+        this.currentRegionEditingSession = new OptiCubeRegionEditingSession(optiCubePos, type, world.getTotalWorldTime());
         this.firstRegionPoint = null;
     }
 
@@ -43,10 +50,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
     }
 
     public boolean isEditingRegion(World world, BlockPos optiCubePos, OptiCubeRegionType regionType) {
-        return currentRegionEditingSession != null &&
-                currentRegionEditingSession.getType() == regionType &&
-                currentRegionEditingSession.getOpiCubePos().equals(optiCubePos) &&
-                currentRegionEditingSession.isValid(world);
+        return currentRegionEditingSession != null && currentRegionEditingSession.getType() == regionType && currentRegionEditingSession.getOptiCubePos().equals(optiCubePos) && currentRegionEditingSession.isValid(world);
     }
 
     public boolean isEditingRegion() {
@@ -69,6 +73,75 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         return (ClientOptiCubeEditingService) OptiCubes.getEditingService();
     }
 
+    private void stopRadiusEditingSession() {
+        if (currentRadiusEditingSession != null) {
+            currentRadiusEditingSession.apply();
+            currentRadiusEditingSession = null;
+        }
+    }
+
+    public OptiCubeRadiusEditingSession getCurrentRadiusEditingSession() {
+        return currentRadiusEditingSession;
+    }
+
+    private OptiCube checkRadiusEditingSession(EntityClientPlayerMP player) {
+        ItemStack held = player.getHeldItem();
+        if (!ItemOptiWrench.isOptiWrench(held)) {
+            return null;
+        }
+        World world = player.getEntityWorld();
+
+        MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
+        boolean isBlockSelected = hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK;
+
+        if (isBlockSelected && world.getBlock(hitResult.blockX, hitResult.blockY, hitResult.blockZ) == OptiBlocks.OPTICUBE) {
+            BlockPos blockPos = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
+            return OptiCubes.getOptiService().getOptiCube(blockPos);
+        }
+        return null;
+    }
+
+    public boolean onWheelScroll(int i) {
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+        if (player == null) {
+            return false;
+        }
+        OptiCube optiCube = checkRadiusEditingSession(player);
+        if (optiCube == null) {
+            return false;
+        }
+
+        if (currentRadiusEditingSession != null) {
+            if (!currentRadiusEditingSession.getOptiCubePos().equals(optiCube.getPos())) {
+                stopRadiusEditingSession();
+            }
+        }
+        if (currentRadiusEditingSession == null) {
+            currentRadiusEditingSession = new OptiCubeRadiusEditingSession(
+                    optiCube.getPos(), optiCube.getRadius(),
+                    Minecraft.getMinecraft().thePlayer.ticksExisted
+            );
+        }
+        currentRadiusEditingSession.modifyRadius(Integer.compare(i, 0));
+        return true;
+    }
+
+    public class ForgeListener {
+        @SubscribeEvent
+        public void onTick(TickEvent.ClientTickEvent event) {
+            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            if (player == null || event.phase != TickEvent.Phase.END) {
+                return;
+            }
+            if (currentRadiusEditingSession != null) {
+                OptiCube optiCube = checkRadiusEditingSession(player);
+                if (optiCube == null) {
+                    stopRadiusEditingSession();
+                }
+            }
+        }
+    }
+
     public class EventListener {
         @SubscribeEvent
         public void onRender(RenderWorldLastEvent event) {
@@ -82,11 +155,11 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                 return;
             }
 
+            MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
+            boolean isBlockSelected = hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK;
+
             if (firstRegionPoint != null) {
-
-
-                MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
-                if (hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                if (isBlockSelected) {
                     BlockPos secondRegionPoint = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
 
                     RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFFFF9138, 1 / 32f);
@@ -94,6 +167,25 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                     RegionRenderer.addRegion(new Region(firstRegionPoint, secondRegionPoint), 0xFFFFFFFF, 1 / 48f);
                 } else {
                     RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFF3590FF, 1 / 32f);
+                }
+            }
+
+            if (isBlockSelected && player.getEntityWorld().getBlock(hitResult.blockX, hitResult.blockY, hitResult.blockZ) == OptiBlocks.OPTICUBE) {
+                BlockPos blockPos = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
+                OptiCube optiCube = OptiCubes.getOptiService().getOptiCube(blockPos);
+                if (optiCube != null) {
+                    int radius = optiCube.getRadius();
+                    int time = player.ticksExisted;
+                    if (currentRadiusEditingSession != null && currentRadiusEditingSession.getOptiCubePos().equals(blockPos)) {
+                        radius = currentRadiusEditingSession.getRadius();
+                        time -= currentRadiusEditingSession.getStartTime();
+                    }
+
+                    TextPanelRenderer.renderText(
+                            new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ),
+                            Integer.toString(radius), hitResult.sideHit, currentRadiusEditingSession != null,
+                            time, event.partialTicks
+                    );
                 }
             }
         }

@@ -7,12 +7,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.management.PlayerManager;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityOptiCube extends TileEntity {
 
     private Region affectedRegion = Region.BLOCK;
+    private int radius = 16;
 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
@@ -28,10 +28,12 @@ public class TileEntityOptiCube extends TileEntity {
 
     private void writeCommon(NBTTagCompound compound) {
         NBTUtils.setRegion(compound, "Region", affectedRegion);
+        compound.setInteger("Radius", radius);
     }
 
     private void readCommon(NBTTagCompound compound) {
         affectedRegion = NBTUtils.getRegion(compound, "Region");
+        radius = compound.getInteger("Radius");
     }
 
     @Override
@@ -70,12 +72,21 @@ public class TileEntityOptiCube extends TileEntity {
         return affectedRegion;
     }
 
-    public double getRadius() {
-        return 8;
+    public int getRadius() {
+        return radius;
     }
 
     public void setAffectedRegion(Region affectedRegion) {
         this.affectedRegion = affectedRegion;
+        updateData();
+    }
+
+    public void setRadius(int radius) {
+        this.radius = radius;
+        updateData();
+    }
+
+    private void updateData() {
         if (worldObj != null && !worldObj.isRemote) {
             this.markDirty();
             worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);

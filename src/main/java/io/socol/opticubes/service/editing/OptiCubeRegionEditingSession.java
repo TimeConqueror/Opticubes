@@ -11,18 +11,18 @@ public class OptiCubeRegionEditingSession {
 
     private static final long MAX_DURATION = 20 * 60 * 5; // 5 min
 
-    private final BlockPos opiCubePos;
+    private final BlockPos optiCubePos;
     private final OptiCubeRegionType type;
     private final long startTime;
 
     public OptiCubeRegionEditingSession(BlockPos opiCubePos, OptiCubeRegionType type, long startTime) {
-        this.opiCubePos = opiCubePos;
+        this.optiCubePos = opiCubePos;
         this.type = type;
         this.startTime = startTime;
     }
 
-    public BlockPos getOpiCubePos() {
-        return opiCubePos;
+    public BlockPos getOptiCubePos() {
+        return optiCubePos;
     }
 
     public OptiCubeRegionType getType() {
@@ -39,10 +39,10 @@ public class OptiCubeRegionEditingSession {
             return;
         }
 
-        TileEntity tile = world.getTileEntity(opiCubePos.x, opiCubePos.y, opiCubePos.z);
+        TileEntity tile = world.getTileEntity(optiCubePos.x, optiCubePos.y, optiCubePos.z);
         if (tile instanceof TileEntityOptiCube) {
             if (type == OptiCubeRegionType.AFFECTED_REGION) {
-                ((TileEntityOptiCube) tile).setAffectedRegion(region.asRelative(opiCubePos));
+                ((TileEntityOptiCube) tile).setAffectedRegion(region.asRelative(optiCubePos));
             }
         }
     }

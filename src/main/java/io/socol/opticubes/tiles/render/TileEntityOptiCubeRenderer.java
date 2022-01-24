@@ -5,8 +5,11 @@ import cpw.mods.fml.relauncher.SideOnly;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
+import org.lwjgl.opengl.GL11;
 
 @SideOnly(Side.CLIENT)
 public class TileEntityOptiCubeRenderer extends TileEntitySpecialRenderer {
@@ -15,6 +18,7 @@ public class TileEntityOptiCubeRenderer extends TileEntitySpecialRenderer {
     public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float partialTicks) {
         TileEntityOptiCube optiCube = (TileEntityOptiCube) tile;
         EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+
 
 //        GL11.glTranslated(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
 //        if (player != null) {

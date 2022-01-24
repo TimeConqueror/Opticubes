@@ -14,13 +14,13 @@ public class OptiCube {
 
     private final BlockPos pos;
     private final Region region; // absolute
-    private final double radius;
+    private final int radius;
 
     private boolean enabled = true; // true -> hide tiles
 
     private List<ChunkPos> affectedChunks = Collections.emptyList();
 
-    public OptiCube(BlockPos pos, Region region, double radius) {
+    public OptiCube(BlockPos pos, Region region, int radius) {
         this.pos = pos;
         this.region = region;
         this.radius = radius;
@@ -36,6 +36,10 @@ public class OptiCube {
 
     public Region getRegion() {
         return region;
+    }
+
+    public int getRadius() {
+        return radius;
     }
 
     public void setAffectedChunks(List<ChunkPos> affectedChunks) {
