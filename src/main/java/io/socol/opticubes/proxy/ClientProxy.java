@@ -7,6 +7,7 @@ import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.registry.OptiTiles;
 import io.socol.opticubes.utils.Hacks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,11 @@ public class ClientProxy extends CommonProxy {
     @Nullable
     public static World world() {
         return Hacks.safeCast(Minecraft.getMinecraft().theWorld);
+    }
+
+    @Nullable
+    public static EntityPlayer player() {
+        return Hacks.safeCast(Minecraft.getMinecraft().thePlayer);
     }
 
     @Override

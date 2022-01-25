@@ -30,7 +30,7 @@ public class OptiCubeEditingService {
     public void stopRegionEditingSession(EntityPlayerMP player, @Nullable Region region) {
         OptiCubeRegionEditingSession session = regionEditingSessions.remove(player.getUniqueID());
         if (session != null) {
-            session.applyRegion(player.getEntityWorld(), region);
+            session.applyRegion(player, player.getEntityWorld(), region);
         }
     }
 

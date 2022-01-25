@@ -8,6 +8,7 @@ import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.fx.TextPanelRenderer;
 import io.socol.opticubes.items.ItemOptiWrench;
 import io.socol.opticubes.network.serverbound.StopOptiCubeRegionEditingMessage;
+import io.socol.opticubes.proxy.ClientProxy;
 import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.registry.OptiNetwork;
 import io.socol.opticubes.service.opti.OptiCube;
@@ -66,7 +67,12 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
             firstRegionPoint = pos;
             return;
         }
-        stopRegionEditingSession(new Region(firstRegionPoint, pos));
+
+        Region region = new Region(firstRegionPoint, pos);
+
+        if (OptiCubeRegionEditingSession.validateRegion(ClientProxy.player(), region, true)) {
+            stopRegionEditingSession(region);
+        }
     }
 
     public static ClientOptiCubeEditingService getInstance() {
@@ -166,7 +172,10 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
                     RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFFFF9138, 1 / 32f);
                     RegionRenderer.addRegion(new Region(secondRegionPoint), 0xFF3590FF, 1 / 32f);
-                    RegionRenderer.addRegion(new Region(firstRegionPoint, secondRegionPoint), 0xFFFFFFFF, 1 / 48f);
+
+                    Region selectedRegion = new Region(firstRegionPoint, secondRegionPoint);
+                    boolean regionValid = OptiCubeRegionEditingSession.validateRegion(player, selectedRegion, false);
+                    RegionRenderer.addRegion(selectedRegion, regionValid ? 0xFFFFFFFF : 0xFFE52B50, 1 / 48f);
                 } else {
                     RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFF3590FF, 1 / 32f);
                 }
