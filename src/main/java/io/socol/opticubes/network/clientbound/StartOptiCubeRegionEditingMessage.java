@@ -4,12 +4,12 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import io.socol.opticubes.proxy.ClientProxy;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.utils.ProtoUtils;
 import io.socol.opticubes.utils.pos.BlockPos;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 //FIXME migrate to S2C | C2S
@@ -44,7 +44,7 @@ public class StartOptiCubeRegionEditingMessage implements IMessage {
 
         @Override
         public IMessage onMessage(StartOptiCubeRegionEditingMessage message, MessageContext ctx) {
-            WorldClient world = Minecraft.getMinecraft().theWorld;
+            World world = ClientProxy.world();
             if (world != null) {
                 ClientOptiCubeEditingService.getInstance().startNewRegionEditingSession(message.optiCubePos, message.regionType, world);
             }

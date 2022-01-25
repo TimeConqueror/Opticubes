@@ -8,7 +8,7 @@ import io.socol.opticubes.registry.OptiItems;
 import io.socol.opticubes.registry.OptiNetwork;
 import io.socol.opticubes.registry.OptiTiles;
 
-public abstract class CommonProxy {
+public class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
         OptiItems.register();

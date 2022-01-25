@@ -3,14 +3,20 @@ package io.socol.opticubes.proxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.registry.OptiTiles;
+import io.socol.opticubes.utils.Hacks;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import org.jetbrains.annotations.Nullable;
 
-@SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
+    @Nullable
+    public static World world() {
+        return Hacks.safeCast(Minecraft.getMinecraft().theWorld);
+    }
+
     @Override
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
