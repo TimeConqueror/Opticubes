@@ -75,7 +75,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
     private void stopRadiusEditingSession() {
         if (currentRadiusEditingSession != null) {
-            currentRadiusEditingSession.apply();
+            currentRadiusEditingSession.commit();
             currentRadiusEditingSession = null;
         }
     }
@@ -119,7 +119,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         if (currentRadiusEditingSession == null) {
             currentRadiusEditingSession = new OptiCubeRadiusEditingSession(
                     optiCube.getPos(), optiCube.getRadius(),
-                    Minecraft.getMinecraft().thePlayer.ticksExisted
+                    player.ticksExisted
             );
         }
         currentRadiusEditingSession.modifyRadius(Integer.compare(i, 0));
@@ -137,6 +137,8 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                 OptiCube optiCube = checkRadiusEditingSession(player);
                 if (optiCube == null) {
                     stopRadiusEditingSession();
+                } else {
+                    currentRadiusEditingSession.update(player.ticksExisted);
                 }
             }
         }
