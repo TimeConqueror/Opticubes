@@ -6,36 +6,28 @@ import io.socol.opticubes.utils.pos.BlockPos;
 public class ProtoUtils {
 
     public static void writeBlockPos(ByteBuf buf, BlockPos pos) {
-        buf.writeInt(pos.x);
-        buf.writeInt(pos.y);
-        buf.writeInt(pos.z);
+        buf.writeLong(pos.packToLong());
     }
 
     public static BlockPos readBlockPos(ByteBuf buf) {
-        return new BlockPos(
-                buf.readInt(),
-                buf.readInt(),
-                buf.readInt()
-        );
+        return BlockPos.fromPacked(buf.readLong());
     }
 
     public static void writeRegion(ByteBuf buf, Region region) {
-        buf.writeInt(region.x0);
-        buf.writeInt(region.y0);
-        buf.writeInt(region.z0);
-        buf.writeInt(region.x1);
-        buf.writeInt(region.y1);
-        buf.writeInt(region.z1);
+        buf.writeLong(BlockPos.packToLong(region.x0, region.y0, region.z0));
+        buf.writeLong(BlockPos.packToLong(region.x1, region.y1, region.z1));
     }
 
     public static Region readRegion(ByteBuf buf) {
+        long pos0 = buf.readLong();
+        long pos1 = buf.readLong();
         return new Region(
-                buf.readInt(),
-                buf.readInt(),
-                buf.readInt(),
-                buf.readInt(),
-                buf.readInt(),
-                buf.readInt()
+                BlockPos.unpackX(pos0),
+                BlockPos.unpackY(pos0),
+                BlockPos.unpackZ(pos0),
+                BlockPos.unpackX(pos1),
+                BlockPos.unpackY(pos1),
+                BlockPos.unpackZ(pos1)
         );
     }
 }

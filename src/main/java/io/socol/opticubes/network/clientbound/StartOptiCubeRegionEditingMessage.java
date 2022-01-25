@@ -10,7 +10,9 @@ import io.socol.opticubes.utils.ProtoUtils;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
+//FIXME migrate to S2C | C2S
 public class StartOptiCubeRegionEditingMessage implements IMessage {
 
     private BlockPos optiCubePos;
@@ -21,6 +23,7 @@ public class StartOptiCubeRegionEditingMessage implements IMessage {
         this.regionType = regionType;
     }
 
+    @Internal
     public StartOptiCubeRegionEditingMessage() {
 
     }

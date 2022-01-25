@@ -9,6 +9,8 @@ import io.socol.opticubes.utils.ProtoUtils;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.entity.player.EntityPlayerMP;
 
+import static org.jetbrains.annotations.ApiStatus.Internal;
+
 public class SetOptiCubeRadiusMessage implements IMessage {
 
     private BlockPos optiCubePos;
@@ -19,6 +21,7 @@ public class SetOptiCubeRadiusMessage implements IMessage {
         this.radius = radius;
     }
 
+    @Internal
     public SetOptiCubeRadiusMessage() {
 
     }

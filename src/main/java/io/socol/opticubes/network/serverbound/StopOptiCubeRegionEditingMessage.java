@@ -7,9 +7,8 @@ import io.netty.buffer.ByteBuf;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.utils.ProtoUtils;
 import io.socol.opticubes.utils.Region;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.WorldServer;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 public class StopOptiCubeRegionEditingMessage implements IMessage {
@@ -21,6 +20,7 @@ public class StopOptiCubeRegionEditingMessage implements IMessage {
         this.region = region;
     }
 
+    @Internal
     public StopOptiCubeRegionEditingMessage() {
 
     }
