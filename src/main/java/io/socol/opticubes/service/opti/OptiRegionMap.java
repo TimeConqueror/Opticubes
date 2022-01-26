@@ -36,7 +36,7 @@ public class OptiRegionMap {
 
         for (int cx = region.x0 >> 4; cx <= cx1; cx++) {
             for (int cz = region.z0 >> 4; cz <= cz1; cz++) {
-                Region clamped = region.clampInChunk(cx, cz);
+                Region clamped = region.clampByChunk(cx, cz);
                 if (clamped != null) {
                     ChunkPos chunkPos = new ChunkPos(cx, cz);
                     affectedChunks.add(chunkPos);

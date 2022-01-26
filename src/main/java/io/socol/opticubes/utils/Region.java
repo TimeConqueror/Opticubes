@@ -3,6 +3,7 @@ package io.socol.opticubes.utils;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +12,11 @@ import java.util.Objects;
 public class Region {
 
     public static final Region BLOCK = new Region(0, 0, 0, 1, 1, 1);
+
+    private static final int MIN_WORLD_COORD = -30_000_000;
+    private static final int MAX_WORLD_COORD = 29_999_999;
+    private static final int MIN_WORLD_HEIGHT = 0;
+    private static final int MAX_WORLD_HEIGHT = 255;
 
     public final int x0;
     public final int y0;
@@ -41,7 +47,7 @@ public class Region {
         this.z1 = Math.max(pos1.z, pos2.z) + 1;
     }
 
-    public static Region createAndFix(int x0, int y0, int z0, int x1, int y1, int z1) {
+    public static Region createProper(int x0, int y0, int z0, int x1, int y1, int z1) {
         return new Region(
                 Math.min(x0, x1),
                 Math.min(y0, y1),
@@ -79,10 +85,21 @@ public class Region {
     }
 
     @Nullable
-    public Region clampInChunk(int cx, int cz) {
+    public Region clampByChunk(int cx, int cz) {
         return tryCreate(
                 Math.max(x0, cx << 4), y0, Math.max(z0, cz << 4),
                 Math.min(x1, (cx + 1) << 4), y1, Math.min(z1, (cz + 1) << 4)
+        );
+    }
+
+    public Region clampByWorld() {
+        return new Region(
+                MathHelper.clamp_int(x0, MIN_WORLD_COORD, MAX_WORLD_COORD),
+                MathHelper.clamp_int(y0, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT),
+                MathHelper.clamp_int(z0, MIN_WORLD_COORD, MAX_WORLD_COORD),
+                MathHelper.clamp_int(x1, MIN_WORLD_COORD, MAX_WORLD_COORD),
+                MathHelper.clamp_int(y1, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT),
+                MathHelper.clamp_int(z1, MIN_WORLD_COORD, MAX_WORLD_COORD)
         );
     }
 
@@ -135,6 +152,10 @@ public class Region {
         double dy = Math.max(y0, Math.min(y, y1)) - y;
         double dz = Math.max(z0, Math.min(z, z1)) - z;
         return (dx * dx + dy * dy + dz * dz) <= radius * radius;
+    }
+
+    public Region inflate(int factor) {
+        return new Region(x0 - factor, y0 - factor, z0 - factor, x1 + factor, y1 + factor, z1 + factor);
     }
 
     public boolean isInFrustum() {

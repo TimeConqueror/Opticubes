@@ -44,6 +44,8 @@ public class OptiCubeRegionEditingSession {
             return;
         }
 
+        region = region.clampByWorld();
+
         if (!validateRegion(player, region, true)) {
             return;
         }
@@ -60,22 +62,29 @@ public class OptiCubeRegionEditingSession {
         return world.getTotalWorldTime() - startTime < MAX_DURATION;
     }
 
-    public static boolean validateRegion(EntityPlayer player, Region region, boolean sendFeedback) {
-        if (region.sizeX() <= MAX_REGION_SIZE && region.sizeZ() <= MAX_REGION_SIZE) {
-            return true;
+    public boolean validateRegion(EntityPlayer player, Region region, boolean sendFeedback) {
+        if (region.sizeX() > MAX_REGION_SIZE || region.sizeZ() > MAX_REGION_SIZE) {
+            if (sendFeedback) {
+                player.addChatMessage(ChatComponentExt.withColor(new ChatComponentTranslation("chat.opticubes.region_too_big",
+                        region.sizeX(),
+                        region.sizeY(),
+                        region.sizeZ(),
+                        MAX_REGION_SIZE,
+                        256,
+                        MAX_REGION_SIZE
+                ), EnumChatFormatting.RED));
+            }
+            return false;
         }
 
-        if (sendFeedback) {
-            player.addChatMessage(ChatComponentExt.withColor(new ChatComponentTranslation("chat.opticubes.region_too_big",
-                    region.sizeX(),
-                    region.sizeY(),
-                    region.sizeZ(),
-                    MAX_REGION_SIZE,
-                    256,
-                    MAX_REGION_SIZE
-            ), EnumChatFormatting.RED));
+        Region cubeCheckRegion = region.inflate(1).clampByWorld();
+        if (!cubeCheckRegion.contains(optiCubePos)) {
+            if (sendFeedback) {
+                player.addChatMessage(ChatComponentExt.withColor(new ChatComponentTranslation("chat.opticubes.owner_cube_far_away"), EnumChatFormatting.RED));
+            }
+            return false;
         }
 
-        return false;
+        return true;
     }
 }

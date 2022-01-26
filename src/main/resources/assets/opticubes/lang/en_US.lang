@@ -10,3 +10,4 @@ item.opticubes.optiwrench.usage.create_region=<R-Click> on any two blocks during
 item.opticubes.optiwrench.usage.change_radius=Target Opti-Cube and scroll wheel to change Opti-Cube radius
 
 chat.opticubes.region_too_big=Region %sx%sx%s is too big. Max size is %sx%sx%s.
+chat.opticubes.owner_cube_far_away=Bound Opti-Cube should be inside or next to the region.

@@ -71,7 +71,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
         Region region = new Region(firstRegionPoint, pos);
 
-        if (OptiCubeRegionEditingSession.validateRegion(ClientProxy.player(), region, true)) {
+        if (currentRegionEditingSession.validateRegion(ClientProxy.player(), region, true)) {
             stopRegionEditingSession(region);
         }
     }
@@ -188,7 +188,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                     RegionRenderer.addRegion(new Region(secondRegionPoint), 0xFF3590FF, 1 / 32f);
 
                     Region selectedRegion = new Region(firstRegionPoint, secondRegionPoint);
-                    boolean regionValid = OptiCubeRegionEditingSession.validateRegion(player, selectedRegion, false);
+                    boolean regionValid = currentRegionEditingSession.validateRegion(player, selectedRegion, false);
                     RegionRenderer.addRegion(selectedRegion, regionValid ? 0xFFFFFFFF : 0xFFE52B50, 1 / 48f);
                 } else {
                     RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFF3590FF, 1 / 32f);
