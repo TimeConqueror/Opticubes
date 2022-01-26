@@ -140,6 +140,7 @@ public class RegionRenderer {
         dy2 *= u;
         dz2 *= u;
 
+
         for (int i = 0; i < 2; i++) {
             if (i == 0) {
                 tessellator.addTranslation((float) -dx3 * delta, (float) -dy3 * delta, (float) -dz3 * delta);
@@ -148,25 +149,27 @@ public class RegionRenderer {
                 tessellator.addTranslation((float) dx3 * d, (float) dy3 * d, (float) dz3 * d);
             }
 
-            tessellator.addVertexWithUV(0, 0, 0, 0, 0);
-            tessellator.addVertexWithUV(x1, y1, z1, w, 0);
-            tessellator.addVertexWithUV(x1 + dx2, y1 + dy2, z1 + dz2, w, u);
-            tessellator.addVertexWithUV(dx2, dy2, dz2, 0, u);
+            double u0 = 0;//(i == 0 ? 1 : -1) * System.currentTimeMillis() % 3000 / 3000f;
 
-            tessellator.addVertexWithUV(x1, y1, z1, w, 0);
-            tessellator.addVertexWithUV(x2, y2, z2, w, h);
-            tessellator.addVertexWithUV(x2 - dx1, y2 - dy1, z2 - dz1, w - u, h);
-            tessellator.addVertexWithUV(x1 - dx1, y1 - dy1, z1 - dz1, w - u, 0);
+            tessellator.addVertexWithUV(0, 0, 0, u0, 0);
+            tessellator.addVertexWithUV(x1, y1, z1, u0 + w, 0);
+            tessellator.addVertexWithUV(x1 + dx2, y1 + dy2, z1 + dz2, u0 + w, u);
+            tessellator.addVertexWithUV(dx2, dy2, dz2, u0, u);
 
-            tessellator.addVertexWithUV(x2, y2, z2, w, h);
-            tessellator.addVertexWithUV(x3, y3, z3, 0, h);
-            tessellator.addVertexWithUV(x3 - dx2, y3 - dy2, z3 - dz2, 0, h - u);
-            tessellator.addVertexWithUV(x2 - dx2, y2 - dy2, z2 - dz2, w, h - u);
+            tessellator.addVertexWithUV(x1, y1, z1, w, u0);
+            tessellator.addVertexWithUV(x2, y2, z2, w, u0 + h);
+            tessellator.addVertexWithUV(x2 - dx1, y2 - dy1, z2 - dz1, w - u, u0 + h);
+            tessellator.addVertexWithUV(x1 - dx1, y1 - dy1, z1 - dz1, w - u, u0);
 
-            tessellator.addVertexWithUV(x3, y3, z3, 0, h);
-            tessellator.addVertexWithUV(0, 0, 0, 0, 0);
-            tessellator.addVertexWithUV(dx1, dy1, dz1, u, 0);
-            tessellator.addVertexWithUV(x3 + dx1, y3 + dy1, z3 + dz1, u, h);
+            tessellator.addVertexWithUV(x2, y2, z2, -u0 + w, h);
+            tessellator.addVertexWithUV(x3, y3, z3, -u0, h);
+            tessellator.addVertexWithUV(x3 - dx2, y3 - dy2, z3 - dz2, -u0, h - u);
+            tessellator.addVertexWithUV(x2 - dx2, y2 - dy2, z2 - dz2, -u0 + w, h - u);
+
+            tessellator.addVertexWithUV(x3, y3, z3, 0, h - u0);
+            tessellator.addVertexWithUV(0, 0, 0, 0, -u0);
+            tessellator.addVertexWithUV(dx1, dy1, dz1, u, -u0);
+            tessellator.addVertexWithUV(x3 + dx1, y3 + dy1, z3 + dz1, u, h - u0);
         }
     }
 

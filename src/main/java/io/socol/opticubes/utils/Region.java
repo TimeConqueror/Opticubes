@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class Region {
 
     public static final Region BLOCK = new Region(0, 0, 0, 1, 1, 1);
@@ -145,6 +147,24 @@ public class Region {
                 z1 - RenderManager.renderPosZ
         );
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Region region = (Region) o;
+        return x0 == region.x0 && y0 == region.y0 && z0 == region.z0 && x1 == region.x1 && y1 == region.y1 && z1 == region.z1;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x0, y0, z0, x1, y1, z1);
+    }
+
+    public boolean equals(BlockPos pos) {
+        return x0 == pos.x && y0 == pos.y && z0 == pos.z && x1 == (pos.x + 1) && y1 == (pos.y + 1) && z1 == (pos.z + 1);
+    }
+
 
     public Region asRelative(BlockPos opiCubePos) {
         return move(-opiCubePos.x, -opiCubePos.y, -opiCubePos.z);

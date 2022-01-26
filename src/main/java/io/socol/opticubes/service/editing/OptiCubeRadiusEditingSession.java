@@ -2,6 +2,7 @@ package io.socol.opticubes.service.editing;
 
 import io.socol.opticubes.network.serverbound.SetOptiCubeRadiusMessage;
 import io.socol.opticubes.registry.OptiNetwork;
+import io.socol.opticubes.service.opti.OptiCube;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.util.MathHelper;
 
@@ -33,7 +34,7 @@ public class OptiCubeRadiusEditingSession {
     }
 
     public void modifyRadius(int delta) {
-        radius = MathHelper.clamp_int(radius + delta, 0, 64);
+        radius = MathHelper.clamp_int(radius + delta, OptiCube.MIN_RADIUS, OptiCube.MAX_RADIUS);
     }
 
     public void commit() {

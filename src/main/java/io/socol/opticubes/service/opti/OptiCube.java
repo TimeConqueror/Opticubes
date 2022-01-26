@@ -1,7 +1,7 @@
 package io.socol.opticubes.service.opti;
 
-import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.Region;
+import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
 
 import java.util.Collections;
@@ -11,6 +11,9 @@ import java.util.List;
  * Immutable snapshot of TileEntityOptiCube data
  */
 public class OptiCube {
+
+    public static final int MIN_RADIUS = -1;
+    public static final int MAX_RADIUS = 64;
 
     private final BlockPos pos;
     private final Region region; // absolute
@@ -51,6 +54,6 @@ public class OptiCube {
     }
 
     public void checkEnabled(double cameraX, double cameraY, double cameraZ) {
-        enabled = !region.intersects(cameraX, cameraY, cameraZ, radius);
+        enabled = radius == -1 || !region.intersects(cameraX, cameraY, cameraZ, radius);
     }
 }

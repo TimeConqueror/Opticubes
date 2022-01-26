@@ -6,6 +6,7 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import io.socol.opticubes.network.clientbound.ResetOptiCubeEditingMessage;
 import io.socol.opticubes.network.clientbound.StartOptiCubeRegionEditingMessage;
 import io.socol.opticubes.registry.OptiNetwork;
+import io.socol.opticubes.service.opti.OptiCube;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
@@ -44,7 +45,7 @@ public class OptiCubeEditingService {
     }
 
     public void setOptiCubeRadius(EntityPlayerMP player, BlockPos optiCubePos, int radius) {
-        radius = MathHelper.clamp_int(radius, 0, 64);
+        radius = MathHelper.clamp_int(radius, OptiCube.MIN_RADIUS, OptiCube.MAX_RADIUS);
         TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos.x, optiCubePos.y, optiCubePos.z);
         if (tile instanceof TileEntityOptiCube) {
             ((TileEntityOptiCube) tile).setRadius(radius);

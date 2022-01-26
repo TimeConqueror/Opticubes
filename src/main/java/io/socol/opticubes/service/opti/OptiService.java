@@ -8,6 +8,7 @@ import io.socol.opticubes.items.ItemOptiWrench;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
+import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -100,6 +101,9 @@ public class OptiService {
                     );
 
                     if (editing) {
+                        if (!optiCube.getRegion().equals(optiCube.getPos())) {
+                            RegionRenderer.addRegion(new Region(optiCube.getPos()), 0xFF1CDD7A, 1 / 64f);
+                        }
                         float time = player.ticksExisted + event.partialTicks;
                         float animation = MathHelper.sin((float) Math.toRadians(time * 20));
                         RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A, 1 / 16f + animation * 1 / 32f);

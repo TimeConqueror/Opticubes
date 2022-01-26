@@ -17,7 +17,6 @@ import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -209,7 +208,8 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
                     TextPanelRenderer.renderText(
                             new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ),
-                            Integer.toString(radius), hitResult.sideHit, currentRadiusEditingSession != null,
+                            radius == -1 ? "x" : Integer.toString(radius),
+                            hitResult.sideHit, currentRadiusEditingSession != null,
                             time, event.partialTicks
                     );
                 }
