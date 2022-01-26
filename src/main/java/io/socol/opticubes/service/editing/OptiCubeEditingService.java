@@ -1,10 +1,15 @@
 package io.socol.opticubes.service.editing;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import io.socol.opticubes.network.clientbound.ResetOptiCubeEditingMessage;
 import io.socol.opticubes.network.clientbound.StartOptiCubeRegionEditingMessage;
 import io.socol.opticubes.registry.OptiNetwork;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
@@ -17,6 +22,10 @@ import java.util.UUID;
 public class OptiCubeEditingService {
 
     private final Map<UUID, OptiCubeRegionEditingSession> regionEditingSessions = new HashMap<>();
+
+    public OptiCubeEditingService() {
+        FMLCommonHandler.instance().bus().register(new ForgeListener());
+    }
 
     public void startRegionEditingSession(EntityPlayerMP player, BlockPos opiCubePos, OptiCubeRegionType type) {
         regionEditingSessions.put(player.getUniqueID(), new OptiCubeRegionEditingSession(
@@ -39,6 +48,27 @@ public class OptiCubeEditingService {
         TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos.x, optiCubePos.y, optiCubePos.z);
         if (tile instanceof TileEntityOptiCube) {
             ((TileEntityOptiCube) tile).setRadius(radius);
+        }
+    }
+
+    protected void resetPlayer(EntityPlayer player) {
+        regionEditingSessions.remove(player.getUniqueID());
+    }
+
+    protected void resetAllPlayers() {
+        regionEditingSessions.clear();
+    }
+
+    public class ForgeListener {
+        @SubscribeEvent
+        public void onPlayerChangeWorld(PlayerEvent.PlayerChangedDimensionEvent event) {
+            resetPlayer(event.player);
+            OptiNetwork.NETWORK.sendTo(new ResetOptiCubeEditingMessage(), (EntityPlayerMP) event.player);
+        }
+
+        @SubscribeEvent
+        public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+            resetPlayer(event.player);
         }
     }
 }

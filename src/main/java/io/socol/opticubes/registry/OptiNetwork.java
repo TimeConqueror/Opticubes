@@ -6,6 +6,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import io.socol.opticubes.OptiCubes;
+import io.socol.opticubes.network.clientbound.ResetOptiCubeEditingMessage;
 import io.socol.opticubes.network.clientbound.StartOptiCubeRegionEditingMessage;
 import io.socol.opticubes.network.serverbound.SetOptiCubeRadiusMessage;
 import io.socol.opticubes.network.serverbound.StopOptiCubeRegionEditingMessage;
@@ -18,6 +19,7 @@ public class OptiNetwork {
 
     public static void register() {
         registerMessage(new StartOptiCubeRegionEditingMessage.Handler(), StartOptiCubeRegionEditingMessage.class, Side.CLIENT);
+        registerMessage(new ResetOptiCubeEditingMessage.Handler(), ResetOptiCubeEditingMessage.class, Side.CLIENT);
         registerMessage(new StopOptiCubeRegionEditingMessage.Handler(), StopOptiCubeRegionEditingMessage.class, Side.SERVER);
         registerMessage(new SetOptiCubeRadiusMessage.Handler(), SetOptiCubeRadiusMessage.class, Side.SERVER);
     }

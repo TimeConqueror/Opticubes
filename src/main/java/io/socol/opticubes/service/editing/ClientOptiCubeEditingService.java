@@ -3,6 +3,7 @@ package io.socol.opticubes.service.editing;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.fx.TextPanelRenderer;
@@ -16,6 +17,7 @@ import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -132,6 +134,12 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         return true;
     }
 
+    public void reset() {
+        currentRegionEditingSession = null;
+        currentRadiusEditingSession = null;
+        firstRegionPoint = null;
+    }
+
     public class ForgeListener {
         @SubscribeEvent
         public void onTick(TickEvent.ClientTickEvent event) {
@@ -147,6 +155,13 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                     currentRadiusEditingSession.update(player.ticksExisted);
                 }
             }
+        }
+
+        @SubscribeEvent
+        public void onPlayerLeave(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+            reset();
+            // reset all player on integrated server due to host leave (does nothing if player left from dedicated server)
+            resetAllPlayers();
         }
     }
 
