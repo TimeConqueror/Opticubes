@@ -76,7 +76,7 @@ public class OptiService {
             double cameraZ = player.posZ;
 
             for (OptiCube optiCube : optiCubes.values()) {
-                optiCube.checkEnabled(cameraX, cameraY, cameraZ);
+                optiCube.checkEnabled(player.getEntityWorld(), cameraX, cameraY, cameraZ);
             }
         }
     }

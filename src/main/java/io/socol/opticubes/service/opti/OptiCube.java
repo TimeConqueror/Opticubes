@@ -1,8 +1,11 @@
 package io.socol.opticubes.service.opti;
 
+import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
+import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
+import net.minecraft.world.World;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +56,8 @@ public class OptiCube {
         return affectedChunks;
     }
 
-    public void checkEnabled(double cameraX, double cameraY, double cameraZ) {
-        enabled = radius == -1 || !region.intersects(cameraX, cameraY, cameraZ, radius);
+    public void checkEnabled(World world, double cameraX, double cameraY, double cameraZ) {
+        boolean isEditingRegion = ClientOptiCubeEditingService.getInstance().isEditingRegion(world, pos, OptiCubeRegionType.AFFECTED_REGION);
+        enabled = !isEditingRegion && (radius == -1 || !region.intersects(cameraX, cameraY, cameraZ, radius));
     }
 }
