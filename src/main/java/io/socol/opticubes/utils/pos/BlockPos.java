@@ -1,12 +1,12 @@
 package io.socol.opticubes.utils.pos;
 
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
 
 import java.util.Objects;
 
 public class BlockPos {
-    private static final int PACKED_X_LENGTH = 1 + MathHelper.calculateLogBaseTwo(MathHelper.roundUpToPowerOfTwo(30000000));
+    //  1 + MathHelper.calculateLogBaseTwo(MathHelper.roundUpToPowerOfTwo(30000000));
+    private static final int PACKED_X_LENGTH = 26;
     private static final int PACKED_Z_LENGTH = PACKED_X_LENGTH;
     private static final int PACKED_Y_LENGTH = 64 - PACKED_X_LENGTH - PACKED_Z_LENGTH;
     private static final long PACKED_X_MASK = (1L << PACKED_X_LENGTH) - 1L;
