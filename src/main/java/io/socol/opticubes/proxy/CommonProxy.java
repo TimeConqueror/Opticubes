@@ -3,10 +3,7 @@ package io.socol.opticubes.proxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import io.socol.opticubes.registry.OptiBlocks;
-import io.socol.opticubes.registry.OptiItems;
-import io.socol.opticubes.registry.OptiNetwork;
-import io.socol.opticubes.registry.OptiTiles;
+import io.socol.opticubes.registry.*;
 
 public class CommonProxy {
 
@@ -28,6 +25,7 @@ public class CommonProxy {
     }
 
     public void init(FMLInitializationEvent event) {
+        OptiRecipes.init();
 //        MinecraftForge.EVENT_BUS.register(new EventListener());
     }
 
