@@ -1,0 +1,13 @@
+# Blocks
+tile.opticubes.opticube.name=Опти-куб
+# Items
+item.opticubes.optiwrench.name=Опти-ключ
+# Usage
+item.opticubes.optiwrench.usage.held=Держите в руках для просмотра регионов опти-кубов
+item.opticubes.optiwrench.usage.start_region_editing=<Shift + ПКМ> по опти-кубу показывает его регион
+item.opticubes.optiwrench.usage.stop_region_editing=<Shift + ПКМ> по любому блоку остановит режим редактирования региона
+item.opticubes.optiwrench.usage.create_region=<ПКМ> по любым двум блокам во время редактирования региона установит выделенный регион
+item.opticubes.optiwrench.usage.change_radius=Колесиком мыши при наведении на опти-куб можно менять радиус его действия
+
+chat.opticubes.region_too_big=Регион %sx%sx%s слишком большой. Максимально допустимый размер - %sx%sx%s.
+chat.opticubes.owner_cube_far_away=Привязанный опти-куб должен находится внутри или впритык к региону.
