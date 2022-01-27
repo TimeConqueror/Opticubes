@@ -12,6 +12,14 @@ public class ChunkPos {
         this.z = z;
     }
 
+    public int centerX() {
+        return (this.x << 4) + 8;
+    }
+
+    public int centerZ() {
+        return (this.z << 4) + 8;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

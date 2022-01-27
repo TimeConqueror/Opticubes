@@ -7,6 +7,7 @@ import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,9 +23,11 @@ public class OptiCube {
     private final Region region; // absolute
     private final int radius;
 
-    private boolean enabled = true; // true -> hide tiles
+    private boolean enabled = false; // true -> hide tiles
 
     private List<ChunkPos> affectedChunks = Collections.emptyList();
+
+    private List<BlockPos> blocksToUpdate = Collections.emptyList();
 
     public OptiCube(BlockPos pos, Region region, int radius) {
         this.pos = pos;
@@ -50,14 +53,30 @@ public class OptiCube {
 
     public void setAffectedChunks(List<ChunkPos> affectedChunks) {
         this.affectedChunks = affectedChunks;
+
+        this.blocksToUpdate = new ArrayList<>();
+        int cy1 = region.y1 >> 4;
+        for (int cy = region.y0 >> 4; cy <= cy1; cy++) {
+            int blockY = (cy << 4) + 8;
+            for (ChunkPos chunkPos : affectedChunks) {
+                blocksToUpdate.add(new BlockPos(chunkPos.centerX(), blockY, chunkPos.centerZ()));
+            }
+        }
     }
 
     public List<ChunkPos> getAffectedChunks() {
         return affectedChunks;
     }
 
-    public void checkEnabled(World world, double cameraX, double cameraY, double cameraZ) {
+    public List<BlockPos> getBlocksToUpdate() {
+        return blocksToUpdate;
+    }
+
+    public boolean checkEnabled(World world, double cameraX, double cameraY, double cameraZ) {
         boolean isEditingRegion = ClientOptiCubeEditingService.getInstance().isEditingRegion(world, pos, OptiCubeRegionType.AFFECTED_REGION);
-        enabled = !isEditingRegion && (radius == -1 || !region.intersects(cameraX, cameraY, cameraZ, radius));
+        boolean newEnabled = !isEditingRegion && (radius == -1 || !region.intersects(cameraX, cameraY, cameraZ, radius));
+        boolean updated = enabled != newEnabled;
+        this.enabled = newEnabled;
+        return updated;
     }
 }

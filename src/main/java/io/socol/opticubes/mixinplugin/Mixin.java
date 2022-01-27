@@ -13,7 +13,8 @@ public enum Mixin {
     // Exception: Tags.java, as long as it is used for Strings only!
     //
     TILE_ENTITY_RENDERED_DISPATCHER("TileEntityRendererDispatcherMixin", Side.CLIENT, TargetedMod.VANILLA),
-    INVENTORY_PLAYER("InventoryPlayerMixin", Side.CLIENT, TargetedMod.VANILLA);
+    INVENTORY_PLAYER("InventoryPlayerMixin", Side.CLIENT, TargetedMod.VANILLA),
+    RENDERING_REGISTRY("RenderingRegistryMixin", Side.CLIENT, TargetedMod.VANILLA);
 
     public final String mixinClass;
     public final List<TargetedMod> targetedMods;

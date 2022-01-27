@@ -10,6 +10,7 @@ import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -19,7 +20,9 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class OptiService {
 
@@ -63,6 +66,10 @@ public class OptiService {
         return regionMap.contains(BlockPos.ofTile(tile));
     }
 
+    public boolean skipBlockRender(Block block, BlockPos pos) {
+        return (!block.isFullBlock() || !block.isOpaqueCube()) && regionMap.contains(pos);
+    }
+
     public class ForgeListener {
         @SubscribeEvent
         public void onTick(TickEvent.ClientTickEvent event) {
@@ -75,8 +82,16 @@ public class OptiService {
             double cameraY = player.posY + player.getEyeHeight();
             double cameraZ = player.posZ;
 
+            Set<BlockPos> blocksToUpdate = new HashSet<>();
+
             for (OptiCube optiCube : optiCubes.values()) {
-                optiCube.checkEnabled(player.getEntityWorld(), cameraX, cameraY, cameraZ);
+                if (optiCube.checkEnabled(player.getEntityWorld(), cameraX, cameraY, cameraZ)) {
+                    blocksToUpdate.addAll(optiCube.getBlocksToUpdate());
+                }
+            }
+
+            for (BlockPos pos : blocksToUpdate) {
+                Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z);
             }
         }
     }
