@@ -151,7 +151,14 @@ public class Region {
         double dx = Math.max(x0, Math.min(x, x1)) - x;
         double dy = Math.max(y0, Math.min(y, y1)) - y;
         double dz = Math.max(z0, Math.min(z, z1)) - z;
-        return (dx * dx + dy * dy + dz * dz) <= radius * radius;
+        return Math.sqrt((dx * dx + dy * dy + dz * dz)) <= radius;
+    }
+
+    public double getDistanceTo(double x, double y, double z) {
+        double dx = Math.max(x0, Math.min(x, x1)) - x;
+        double dy = Math.max(y0, Math.min(y, y1)) - y;
+        double dz = Math.max(z0, Math.min(z, z1)) - z;
+        return Math.sqrt((dx * dx + dy * dy + dz * dz));
     }
 
     public Region inflate(int factor) {

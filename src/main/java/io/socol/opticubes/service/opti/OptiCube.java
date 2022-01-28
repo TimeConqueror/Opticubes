@@ -30,6 +30,7 @@ public class OptiCube {
     private final int radius;
 
     private boolean enabled = false; // true -> hide tiles
+    private double distance;
 
     private List<ChunkPos> affectedChunks = Collections.emptyList();
 
@@ -53,6 +54,10 @@ public class OptiCube {
 
     public int getColor() {
         return color;
+    }
+
+    public double getDistance() {
+        return distance;
     }
 
     public void assignColor() {
@@ -110,7 +115,15 @@ public class OptiCube {
 
     public boolean checkEnabled(World world, double cameraX, double cameraY, double cameraZ) {
         boolean isEditingRegion = ClientOptiCubeEditingService.getInstance().isEditingRegion(world, pos, OptiCubeRegionType.AFFECTED_REGION);
-        boolean newEnabled = !isEditingRegion && (radius == -1 || !region.intersects(cameraX, cameraY, cameraZ, radius));
+        boolean newEnabled = false;
+
+        if (!isEditingRegion) {
+            distance = radius == -1 ? 0 : region.getDistanceTo(cameraX, cameraY, cameraZ);
+            newEnabled = distance > radius;
+        } else {
+            distance = 0.0;
+        }
+
         boolean updated = enabled != newEnabled;
         this.enabled = newEnabled;
         return updated;

@@ -28,4 +28,8 @@ public class ColorUtils {
 
         return (ac << 24) + (rc << 16) + (gc << 8) + bc;
     }
+
+    public static int withAlpha(int color, double alpha) {
+        return (color & 0xFFFFFF) | ((int) (255 * alpha) << 24);
+    }
 }
