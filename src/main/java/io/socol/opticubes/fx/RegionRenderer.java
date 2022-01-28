@@ -19,6 +19,7 @@ import java.util.List;
 public class RegionRenderer {
 
     private static final ResourceLocation BOX_TEXTURE = new ResourceLocation(OptiCubes.MODID, "textures/entity/box.png");
+    private static final ResourceLocation BOX_SIDE_TEXTURE = new ResourceLocation(OptiCubes.MODID, "textures/entity/box_side.png");
 
     private static final List<FXRegion> regions = new ArrayList<>();
 
@@ -35,14 +36,18 @@ public class RegionRenderer {
         Tessellator tessellator = Tessellator.instance;
 
         List<FXRegion> ignoreDepthRegions = new ArrayList<>();
+        List<FXRegion> regionsWithSides = new ArrayList<>();
         for (FXRegion region : regions) {
             if (region.ignoreDepth) {
                 ignoreDepthRegions.add(region);
+                if (region.withSides) {
+                    regionsWithSides.add(region);
+                }
             }
         }
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
         GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
         GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
         GL11.glDisable(GL11.GL_LIGHTING);
@@ -52,29 +57,51 @@ public class RegionRenderer {
         if (!ignoreDepthRegions.isEmpty()) {
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(false);
+
+            if (!regionsWithSides.isEmpty()) {
+                GL11.glEnable(GL11.GL_CULL_FACE);
+                GL11.glEnable(GL11.GL_BLEND);
+                Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_SIDE_TEXTURE);
+
+                tessellator.startDrawingQuads();
+                tessellator.setBrightness(240);
+                for (FXRegion region : regionsWithSides) {
+                    TessellatorUtils.setColor(region.color);
+                    drawSides(
+                            tessellator, region.box, region.inflate,
+                            -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ
+                    );
+                }
+                tessellator.draw();
+
+                GL11.glDisable(GL11.GL_BLEND);
+                GL11.glDisable(GL11.GL_CULL_FACE);
+                Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
+            }
+
             tessellator.startDrawingQuads();
             tessellator.setBrightness(240);
-
             for (FXRegion region : ignoreDepthRegions) {
                 TessellatorUtils.setColor(region.color);
-                drawRegion(
-                        tessellator, region.region, region.inflate,
+                drawFrame(
+                        tessellator, region.box, region.inflate,
                         -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, false
                 );
             }
             tessellator.draw();
+
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(true);
         }
 
-
+        Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
         tessellator.startDrawingQuads();
         tessellator.setBrightness(240);
 
         for (FXRegion region : regions) {
             TessellatorUtils.setColor(region.color);
-            drawRegion(
-                    tessellator, region.region, region.inflate,
+            drawFrame(
+                    tessellator, region.box, region.inflate,
                     -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, true
             );
         }
@@ -89,13 +116,14 @@ public class RegionRenderer {
     }
 
     public static class FXRegion {
-        private final Region region;
+        private final Region box;
         private final int color;
         private double inflate;
         private boolean ignoreDepth;
+        private boolean withSides;
 
-        public FXRegion(Region region, int color) {
-            this.region = region;
+        public FXRegion(Region box, int color) {
+            this.box = box;
             this.color = color;
         }
 
@@ -108,9 +136,52 @@ public class RegionRenderer {
             this.ignoreDepth = true;
             return this;
         }
+
+        public FXRegion withSides() {
+            this.withSides = true;
+            return this;
+        }
     }
 
-    private static void drawRegion(Tessellator tessellator, Region box, double inflate, double dx, double dy, double dz, boolean solid) {
+    private static void drawSides(Tessellator tessellator, Region box, double inflate, double dx, double dy, double dz) {
+        double sx = box.sizeX();
+        double sy = box.sizeY();
+        double sz = box.sizeZ();
+
+        tessellator.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
+
+        tessellator.addVertexWithUV(0, sy, 0, 0, 0);
+        tessellator.addVertexWithUV(sx, sy, 0, sx, 0);
+        tessellator.addVertexWithUV(sx, 0, 0, sx, sy);
+        tessellator.addVertexWithUV(0, 0, 0, 0, sy);
+
+        tessellator.addVertexWithUV(sx, sy, sz, -sx, 0);
+        tessellator.addVertexWithUV(0, sy, sz, 0, 0);
+        tessellator.addVertexWithUV(0, 0, sz, 0, sy);
+        tessellator.addVertexWithUV(sx, 0, sz, -sx, sy);
+
+        tessellator.addVertexWithUV(0, sy, sz, sz, 0);
+        tessellator.addVertexWithUV(0, sy, 0, 0, 0);
+        tessellator.addVertexWithUV(0, 0, 0, 0, sy);
+        tessellator.addVertexWithUV(0, 0, sz, sz, sy);
+
+        tessellator.addVertexWithUV(sx, sy, 0, 0, 0);
+        tessellator.addVertexWithUV(sx, sy, sz, -sz, 0);
+        tessellator.addVertexWithUV(sx, 0, sz, -sz, sy);
+        tessellator.addVertexWithUV(sx, 0, 0, 0, sy);
+
+        tessellator.addVertexWithUV(sx, sy, 0, sx, 0);
+        tessellator.addVertexWithUV(0, sy, 0, 0, 0);
+        tessellator.addVertexWithUV(0, sy, sz, 0, sz);
+        tessellator.addVertexWithUV(sx, sy, sz, sx, sz);
+
+        tessellator.addVertexWithUV(0, 0, 0, 0, 0);
+        tessellator.addVertexWithUV(sx, 0, 0, -sx, 0);
+        tessellator.addVertexWithUV(sx, 0, sz, -sx, sz);
+        tessellator.addVertexWithUV(0, 0, sz, 0, sz);
+    }
+
+    private static void drawFrame(Tessellator tessellator, Region box, double inflate, double dx, double dy, double dz, boolean solid) {
         double sx = box.sizeX();
         double sy = box.sizeY();
         double sz = box.sizeZ();

@@ -196,7 +196,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
                     float time = player.ticksExisted + event.partialTicks;
                     float animation = MathHelper.sin((float) Math.toRadians(time * 20));
-                    RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A).inflate(1 / 16f + animation * 1 / 32f).ignoreDepth();
+                    RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A).inflate(1 / 16f + animation * 1 / 32f).ignoreDepth().withSides();
                 }
 
                 if (firstRegionPoint != null) {
@@ -208,7 +208,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
                         Region selectedRegion = new Region(firstRegionPoint, secondRegionPoint);
                         boolean regionValid = currentRegionEditingSession.validateRegion(player, selectedRegion, false);
-                        RegionRenderer.addRegion(selectedRegion, regionValid ? 0xFFFFFFFF : 0xFFE52B50).inflate(1 / 256f).ignoreDepth();
+                        RegionRenderer.addRegion(selectedRegion, regionValid ? 0xFFFFFFFF : 0xFFE52B50).inflate(1 / 256f).ignoreDepth().withSides();
                     } else {
                         RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFF3590FF).inflate(1 / 32f).ignoreDepth();
                     }

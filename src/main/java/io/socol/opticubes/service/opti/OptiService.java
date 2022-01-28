@@ -60,6 +60,14 @@ public class OptiService {
             return;
         }
 
+        if (newOptiCube != null) {
+            if (prevOptiCube != null) {
+                newOptiCube.setColor(prevOptiCube.getColor());
+            } else {
+                newOptiCube.assignColor();
+            }
+        }
+
         boolean prevEnabled = prevOptiCube != null && prevOptiCube.isEnabled();
         boolean newEnabled = newOptiCube != null && newOptiCube.isEnabled();
         Set<BlockPos> prevAffectedChunks = prevOptiCube == null ? Collections.emptySet() : prevOptiCube.getAffectedMicroChunks();

@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.Set;
  * Immutable snapshot of TileEntityOptiCube data
  */
 public class OptiCube {
+
+    private static int lastColorHue;
 
     public static final int MIN_RADIUS = -1;
     public static final int MAX_RADIUS = 64;
@@ -34,12 +37,27 @@ public class OptiCube {
 
     private final boolean hasExternalRegion;
 
+    private int color = 0xFFFFFFFF;
+
     public OptiCube(BlockPos pos, Region region, int radius) {
         this.pos = pos;
         this.region = region;
         this.radius = radius;
 
         this.hasExternalRegion = !region.equals(pos);
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void assignColor() {
+        color = Color.HSBtoRGB(lastColorHue / 100f, 0.8f, 1.0f);
+        lastColorHue += 11;
     }
 
     public boolean isEnabled() {
