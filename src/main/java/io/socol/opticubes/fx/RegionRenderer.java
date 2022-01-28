@@ -56,7 +56,7 @@ public class RegionRenderer {
 
         if (!ignoreDepthRegions.isEmpty()) {
             GL11.glDisable(GL11.GL_DEPTH_TEST);
-            GL11.glDepthMask(false);
+            GL11.glDepthMask(true);
 
             if (!regionsWithSides.isEmpty()) {
                 GL11.glEnable(GL11.GL_CULL_FACE);

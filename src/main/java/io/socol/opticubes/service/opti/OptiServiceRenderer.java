@@ -26,13 +26,11 @@ public class OptiServiceRenderer {
 
         if (!ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
             for (OptiCube optiCube : service.getOptiCubes().values()) {
-
-                if (optiCube.getRegion().isInFrustum()) {
+                if (!optiCube.isEnabled() && optiCube.getRegion().isInFrustum()) {
                     RegionRenderer.addRegion(optiCube.getRegion(), optiCube.getColor()).inflate(1 / 256f).ignoreDepth().withSides();
                 }
                 if (optiCube.hasExternalRegion() && (!optiCube.getPos().equals(radiusEditingOptiCube))) {
-                    int color = optiCube.isEnabled() ? 0xFF808080 : optiCube.getColor();
-                    RegionRenderer.addRegion(new Region(optiCube.getPos()), color).inflate(1 / 266f).ignoreDepth();
+                    RegionRenderer.addRegion(new Region(optiCube.getPos()), optiCube.getColor()).inflate(1 / 266f).ignoreDepth();
                 }
             }
         }
