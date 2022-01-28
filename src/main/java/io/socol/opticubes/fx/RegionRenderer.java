@@ -22,12 +22,10 @@ public class RegionRenderer {
 
     private static final List<FXRegion> regions = new ArrayList<>();
 
-    public static void addRegion(Region region, int color, double inflate) {
-        regions.add(new FXRegion(region, color, inflate));
-    }
-
-    public static void addRegion(Region region, int color) {
-        addRegion(region, color, 0.0);
+    public static FXRegion addRegion(Region region, int color) {
+        FXRegion fxRegion = new FXRegion(region, color);
+        regions.add(fxRegion);
+        return fxRegion;
     }
 
     public static void drawAll() {
@@ -35,6 +33,13 @@ public class RegionRenderer {
             return;
         }
         Tessellator tessellator = Tessellator.instance;
+
+        List<FXRegion> ignoreDepthRegions = new ArrayList<>();
+        for (FXRegion region : regions) {
+            if (region.ignoreDepth) {
+                ignoreDepthRegions.add(region);
+            }
+        }
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -44,18 +49,38 @@ public class RegionRenderer {
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_BLEND);
 
+        if (!ignoreDepthRegions.isEmpty()) {
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthMask(false);
+            tessellator.startDrawingQuads();
+            tessellator.setBrightness(240);
+
+            for (FXRegion region : ignoreDepthRegions) {
+                TessellatorUtils.setColor(region.color);
+                drawRegion(
+                        tessellator, region.region, region.inflate,
+                        -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, false
+                );
+            }
+            tessellator.draw();
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthMask(true);
+        }
+
+
         tessellator.startDrawingQuads();
         tessellator.setBrightness(240);
 
-        for (FXRegion box : regions) {
-            TessellatorUtils.setColor(box.color);
+        for (FXRegion region : regions) {
+            TessellatorUtils.setColor(region.color);
             drawRegion(
-                    tessellator, box.region, box.inflate,
-                    -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ
+                    tessellator, region.region, region.inflate,
+                    -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, true
             );
         }
 
         tessellator.draw();
+
         tessellator.setColorRGBA_F(1f, 1f, 1f, 1f);
         tessellator.setTranslation(0, 0, 0);
         GL11.glEnable(GL11.GL_BLEND);
@@ -63,19 +88,29 @@ public class RegionRenderer {
         regions.clear();
     }
 
-    private static class FXRegion {
+    public static class FXRegion {
         private final Region region;
         private final int color;
-        private final double inflate;
+        private double inflate;
+        private boolean ignoreDepth;
 
-        public FXRegion(Region region, int color, double inflate) {
+        public FXRegion(Region region, int color) {
             this.region = region;
             this.color = color;
+        }
+
+        public FXRegion inflate(double inflate) {
             this.inflate = inflate;
+            return this;
+        }
+
+        public FXRegion ignoreDepth() {
+            this.ignoreDepth = true;
+            return this;
         }
     }
 
-    private static void drawRegion(Tessellator tessellator, Region box, double inflate, double dx, double dy, double dz) {
+    private static void drawRegion(Tessellator tessellator, Region box, double inflate, double dx, double dy, double dz, boolean solid) {
         double sx = box.sizeX();
         double sy = box.sizeY();
         double sz = box.sizeZ();
@@ -85,7 +120,7 @@ public class RegionRenderer {
                 1, 0, 0,
                 0, 0, 1,
                 0, sy, 0,
-                sx, sz, inflate
+                sx, sz, inflate, solid
         );
 
         tessellator.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
@@ -93,7 +128,7 @@ public class RegionRenderer {
                 0, 0, 1,
                 0, 1, 0,
                 sx, 0, 0,
-                sz, sy, inflate
+                sz, sy, inflate, solid
         );
 
         tessellator.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
@@ -101,11 +136,11 @@ public class RegionRenderer {
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, sz,
-                sx, sy, inflate
+                sx, sy, inflate, solid
         );
     }
 
-    private static void drawSide(Tessellator tessellator, double dx1, double dy1, double dz1, double dx2, double dy2, double dz2, double dx3, double dy3, double dz3, double w, double h, double inflate) {
+    private static void drawSide(Tessellator tessellator, double dx1, double dy1, double dz1, double dx2, double dy2, double dz2, double dx3, double dy3, double dz3, double w, double h, double inflate, boolean solid) {
         // delta coords to move first corner
         double ix = (dx1 + dx2) * inflate; // inflate x
         double iy = (dy1 + dy2) * inflate; // inflate y
@@ -140,6 +175,10 @@ public class RegionRenderer {
         dy2 *= u;
         dz2 *= u;
 
+        if (solid) {
+            w = u;
+            h = u;
+        }
 
         for (int i = 0; i < 2; i++) {
             if (i == 0) {

@@ -32,10 +32,14 @@ public class OptiCube {
 
     private Set<BlockPos> affectedMicroChunks = Collections.emptySet();
 
+    private final boolean hasExternalRegion;
+
     public OptiCube(BlockPos pos, Region region, int radius) {
         this.pos = pos;
         this.region = region;
         this.radius = radius;
+
+        this.hasExternalRegion = !region.equals(pos);
     }
 
     public boolean isEnabled() {
@@ -48,6 +52,10 @@ public class OptiCube {
 
     public Region getRegion() {
         return region;
+    }
+
+    public boolean hasExternalRegion() {
+        return hasExternalRegion;
     }
 
     public int getRadius() {

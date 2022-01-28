@@ -1,5 +1,7 @@
 package io.socol.opticubes.utils.pos;
 
+import net.minecraft.client.renderer.culling.ClippingHelperImpl;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.tileentity.TileEntity;
 
 import java.util.Objects;
@@ -72,5 +74,16 @@ public class BlockPos {
     @Override
     public int hashCode() {
         return Objects.hash(x, y, z);
+    }
+
+    public boolean isInFrustum() {
+        return ClippingHelperImpl.getInstance().isBoxInFrustum(
+                x - RenderManager.renderPosX,
+                y - RenderManager.renderPosY,
+                z - RenderManager.renderPosZ,
+                x + 1 - RenderManager.renderPosX,
+                y + 1 - RenderManager.renderPosY,
+                z + 1 - RenderManager.renderPosZ
+        );
     }
 }
