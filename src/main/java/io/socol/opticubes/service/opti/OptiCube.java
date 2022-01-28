@@ -5,11 +5,14 @@ import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Immutable snapshot of TileEntityOptiCube data
@@ -27,7 +30,7 @@ public class OptiCube {
 
     private List<ChunkPos> affectedChunks = Collections.emptyList();
 
-    private List<BlockPos> blocksToUpdate = Collections.emptyList();
+    private Set<BlockPos> affectedMicroChunks = Collections.emptySet();
 
     public OptiCube(BlockPos pos, Region region, int radius) {
         this.pos = pos;
@@ -54,12 +57,14 @@ public class OptiCube {
     public void setAffectedChunks(List<ChunkPos> affectedChunks) {
         this.affectedChunks = affectedChunks;
 
-        this.blocksToUpdate = new ArrayList<>();
-        int cy1 = region.y1 >> 4;
-        for (int cy = region.y0 >> 4; cy <= cy1; cy++) {
-            int blockY = (cy << 4) + 8;
-            for (ChunkPos chunkPos : affectedChunks) {
-                blocksToUpdate.add(new BlockPos(chunkPos.centerX(), blockY, chunkPos.centerZ()));
+        this.affectedMicroChunks = new HashSet<>();
+        if (!affectedChunks.isEmpty()) {
+            int cy1 = region.y1 >> 4;
+            for (int cy = region.y0 >> 4; cy <= cy1; cy++) {
+                int blockY = (cy << 4) + 8;
+                for (ChunkPos chunkPos : affectedChunks) {
+                    affectedMicroChunks.add(new BlockPos(chunkPos.centerX(), blockY, chunkPos.centerZ()));
+                }
             }
         }
     }
@@ -68,8 +73,13 @@ public class OptiCube {
         return affectedChunks;
     }
 
-    public List<BlockPos> getBlocksToUpdate() {
-        return blocksToUpdate;
+    public Set<BlockPos> getAffectedMicroChunks() {
+        return affectedMicroChunks;
+    }
+
+    public boolean checkEnabled() {
+        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        return checkEnabled(player.getEntityWorld(), player.posX, player.posY + player.getEyeHeight(), player.posZ);
     }
 
     public boolean checkEnabled(World world, double cameraX, double cameraY, double cameraZ) {

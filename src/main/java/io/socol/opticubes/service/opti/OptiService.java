@@ -3,26 +3,17 @@ package io.socol.opticubes.service.opti;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import io.socol.opticubes.fx.RegionRenderer;
-import io.socol.opticubes.items.ItemOptiWrench;
-import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
-import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
-import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class OptiService {
 
@@ -37,25 +28,72 @@ public class OptiService {
 
     public void addOptiCube(TileEntityOptiCube tile) {
         BlockPos optiCubePos = BlockPos.ofTile(tile);
-        removeOptiCube(optiCubePos);
+        OptiCube prevOptiCube = removeOptiCubeInternal(optiCubePos);
 
         OptiCube optiCube = new OptiCube(
                 optiCubePos,
                 tile.getAffectedRegion().move(optiCubePos),
                 tile.getRadius()
         );
+        optiCube.checkEnabled();
         optiCubes.put(optiCubePos, optiCube);
         regionMap.add(optiCube);
+
+        onOptiCubeUpdate(prevOptiCube, optiCube);
     }
 
     public void removeOptiCube(TileEntityOptiCube tile) {
-        removeOptiCube(BlockPos.ofTile(tile));
+        OptiCube prevOptiCube = removeOptiCubeInternal(BlockPos.ofTile(tile));
+        onOptiCubeUpdate(prevOptiCube, null);
     }
 
-    public void removeOptiCube(BlockPos optiCubePos) {
+    private OptiCube removeOptiCubeInternal(BlockPos optiCubePos) {
         OptiCube optiCube = optiCubes.remove(optiCubePos);
         if (optiCube != null) {
             regionMap.remove(optiCube);
+        }
+        return optiCube;
+    }
+
+    private void onOptiCubeUpdate(@Nullable OptiCube prevOptiCube, @Nullable OptiCube newOptiCube) {
+        if (prevOptiCube == null && newOptiCube == null) {
+            return;
+        }
+
+        boolean prevEnabled = prevOptiCube != null && prevOptiCube.isEnabled();
+        boolean newEnabled = newOptiCube != null && newOptiCube.isEnabled();
+        Set<BlockPos> prevAffectedChunks = prevOptiCube == null ? Collections.emptySet() : prevOptiCube.getAffectedMicroChunks();
+        Set<BlockPos> newAffectedChunks = newOptiCube == null ? Collections.emptySet() : newOptiCube.getAffectedMicroChunks();
+
+        Set<BlockPos> blocksToUpdate = new HashSet<>();
+
+        // should update all prev affected chunks which are not affected by new opti-cube
+        if (prevEnabled) {
+            for (BlockPos prevChunk : prevAffectedChunks) {
+                if (!newAffectedChunks.contains(prevChunk)) {
+                    blocksToUpdate.add(prevChunk);
+                }
+            }
+        }
+
+        // should update all new affected chunks which are not affected by old opti-cube
+        // and also should update common affected chunks if enabled state changed
+        if (newEnabled || prevEnabled) {
+            for (BlockPos newChunk : newAffectedChunks) {
+                if (!prevAffectedChunks.contains(newChunk)) {
+                    if (newEnabled) {
+                        blocksToUpdate.add(newChunk);
+                    }
+                } else {
+                    if (newEnabled != prevEnabled) {
+                        blocksToUpdate.add(newChunk);
+                    }
+                }
+            }
+        }
+
+        for (BlockPos pos : blocksToUpdate) {
+            Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z);
         }
     }
 
@@ -86,7 +124,7 @@ public class OptiService {
 
             for (OptiCube optiCube : optiCubes.values()) {
                 if (optiCube.checkEnabled(player.getEntityWorld(), cameraX, cameraY, cameraZ)) {
-                    blocksToUpdate.addAll(optiCube.getBlocksToUpdate());
+                    blocksToUpdate.addAll(optiCube.getAffectedMicroChunks());
                 }
             }
 
@@ -96,38 +134,14 @@ public class OptiService {
         }
     }
 
+    public Map<BlockPos, OptiCube> getOptiCubes() {
+        return optiCubes;
+    }
+
     public class EventListener {
         @SubscribeEvent
         public void onRender(RenderWorldLastEvent event) {
-            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
-            if (player == null) {
-                return;
-            }
-
-            ItemStack held = player.getHeldItem();
-            if (!ItemOptiWrench.isOptiWrench(held)) {
-                return;
-            }
-
-            for (OptiCube optiCube : optiCubes.values()) {
-                if (optiCube.getRegion().isInFrustum()) {
-                    boolean editing = ClientOptiCubeEditingService.getInstance().isEditingRegion(
-                            player.getEntityWorld(), optiCube.getPos(), OptiCubeRegionType.AFFECTED_REGION
-                    );
-
-                    if (editing) {
-                        if (!optiCube.getRegion().equals(optiCube.getPos())) {
-                            RegionRenderer.addRegion(new Region(optiCube.getPos()), 0xFF1CDD7A, 1 / 64f);
-                        }
-                        float time = player.ticksExisted + event.partialTicks;
-                        float animation = MathHelper.sin((float) Math.toRadians(time * 20));
-                        RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A, 1 / 16f + animation * 1 / 32f);
-                    } else {
-                        int color = optiCube.isEnabled() ? 0xFF808080 : 0xFF3590FF;
-                        RegionRenderer.addRegion(optiCube.getRegion(), color, 1 / 32f);
-                    }
-                }
-            }
+            OptiServiceRenderer.render(OptiService.this, event.partialTicks);
         }
     }
 

@@ -4,7 +4,10 @@ import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OptiRegionMap {
 
@@ -24,7 +27,6 @@ public class OptiRegionMap {
                 }
             }
         }
-        optiCube.setAffectedChunks(Collections.emptyList());
     }
 
     private List<ChunkPos> splitByChunks(OptiCube optiCube) {
