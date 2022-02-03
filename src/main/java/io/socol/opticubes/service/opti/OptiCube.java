@@ -118,7 +118,7 @@ public class OptiCube {
         boolean newEnabled = false;
 
         if (!isEditingRegion) {
-            distance = radius == -1 ? 0 : region.getDistanceTo(cameraX, cameraY, cameraZ);
+            distance = region.getDistanceTo(cameraX, cameraY, cameraZ);
             newEnabled = distance > radius;
         } else {
             distance = 0.0;

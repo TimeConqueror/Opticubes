@@ -27,10 +27,20 @@ public class OptiServiceRenderer {
 
         if (!ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
             for (OptiCube optiCube : service.getOptiCubes().values()) {
-                if (!optiCube.isEnabled() && optiCube.getRegion().isInFrustum()) {
-                    double alpha = 1.0 - 0.88 * optiCube.getDistance() / optiCube.getRadius();
-                    RegionRenderer.addRegion(optiCube.getRegion(), ColorUtils.withAlpha(optiCube.getColor(), alpha)).inflate(1 / 256f).ignoreDepth().withSides();
+                if (!optiCube.getRegion().isInFrustum()) {
+                    continue;
                 }
+
+                if (!optiCube.isEnabled()) {
+                    double alpha = optiCube.getRadius() <= 0 ? 1.0 : (1.0 - 0.88 * optiCube.getDistance() / optiCube.getRadius());
+                    RegionRenderer.addRegion(optiCube.getRegion(), ColorUtils.withAlpha(optiCube.getColor(), alpha)).inflate(1 / 256f).ignoreDepth().withSides();
+                } else if (optiCube.getRadius() < 3 && optiCube.getDistance() <= 3) {
+                    RegionRenderer.FXRegion fxRegion = RegionRenderer.addRegion(optiCube.getRegion(), 0xFF808080).inflate(1 / 256f).ignoreDepth();
+                    if (optiCube.getRadius() == -1) {
+                        fxRegion.withSides();
+                    }
+                }
+
                 if (optiCube.hasExternalRegion() && (!optiCube.getPos().equals(radiusEditingOptiCube))) {
                     RegionRenderer.addRegion(new Region(optiCube.getPos()), optiCube.getColor()).inflate(1 / 266f).ignoreDepth();
                 }
