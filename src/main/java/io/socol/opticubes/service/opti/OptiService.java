@@ -27,7 +27,7 @@ public class OptiService {
     }
 
     public void addOptiCube(TileEntityOptiCube tile) {
-        BlockPos optiCubePos = BlockPos.ofTile(tile);
+        BlockPos optiCubePos = BlockPos.of(tile);
         OptiCube prevOptiCube = removeOptiCubeInternal(optiCubePos);
 
         OptiCube optiCube = new OptiCube(
@@ -43,7 +43,7 @@ public class OptiService {
     }
 
     public void removeOptiCube(TileEntityOptiCube tile) {
-        OptiCube prevOptiCube = removeOptiCubeInternal(BlockPos.ofTile(tile));
+        OptiCube prevOptiCube = removeOptiCubeInternal(BlockPos.of(tile));
         onOptiCubeUpdate(prevOptiCube, null);
     }
 
@@ -101,7 +101,7 @@ public class OptiService {
         }
 
         for (BlockPos pos : blocksToUpdate) {
-            Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z);
+            Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
         }
     }
 
@@ -109,7 +109,7 @@ public class OptiService {
         if (tile instanceof TileEntityOptiCube) {
             return false;
         }
-        return regionMap.contains(BlockPos.ofTile(tile));
+        return regionMap.contains(BlockPos.of(tile));
     }
 
     public boolean skipBlockRender(Block block, BlockPos pos) {
@@ -137,7 +137,7 @@ public class OptiService {
             }
 
             for (BlockPos pos : blocksToUpdate) {
-                Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z);
+                Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
             }
         }
     }

@@ -16,7 +16,6 @@ public class BlockOptiCube extends Block implements ITileEntityProvider {
         setResistance(10.0F);
         setStepSound(soundTypePiston);
         setTextureName(OptiCubes.MODID + ":opticube");
-//        setTextureName("")
     }
 
     @Override
