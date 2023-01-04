@@ -3,12 +3,14 @@ package io.socol.opticubes.proxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import io.socol.opticubes.OCClientCommand;
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.registry.OptiTiles;
 import io.socol.opticubes.utils.Hacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +53,8 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
+
+        ClientCommandHandler.instance.registerCommand(new OCClientCommand());
 
 //        RenderManager rm = Minecraft.getMinecraft().getRenderManager();
 //

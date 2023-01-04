@@ -3,6 +3,7 @@ package io.socol.opticubes.service.opti;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import io.socol.opticubes.OCConfigs;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.block.Block;
@@ -110,6 +111,11 @@ public class OptiService {
         if (tile instanceof TileEntityOptiCube) {
             return false;
         }
+
+        if (OCConfigs.skipOptiForTile(tile.getClass())) {
+            return false;
+        }
+
         return regionMap.contains(BlockPos.of(tile));
     }
 

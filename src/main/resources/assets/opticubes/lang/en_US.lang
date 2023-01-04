@@ -11,3 +11,8 @@ item.opticubes.optiwrench.usage.change_radius=Target Opti-Cube and scroll wheel 
 
 chat.opticubes.region_too_big=Region %sx%sx%s is too big. Max size is %sx%sx%s.
 chat.opticubes.owner_cube_far_away=Bound Opti-Cube should be inside or next to the region.
+
+opticubes.command.usage=Use '/opticubes help' to see available subcommands
+opticubes.command.reloadconfigs.success=Configs were reloaded
+opticubes.command.reloadconfigs.usage=%s - Reloads all OptiCubes' configs
+opticubes.command.help.usage=%s - Shows help menu

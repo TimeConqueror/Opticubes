@@ -14,12 +14,13 @@ import io.socol.opticubes.service.editing.OptiCubeEditingService;
 import io.socol.opticubes.service.opti.OptiService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import timecore.api.common.config.Config;
 
 @Mod(modid = OptiCubes.MODID, version = OptiCubes.VERSION, dependencies = "required-after:spongemixins@[1.1.0,);")
 public class OptiCubes {
     public static final String MODID = "opticubes";
     public static final String VERSION = "GRADLETOKEN_VERSION";
-    public static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger("OptiCubes");
 
     @SidedProxy(clientSide = "io.socol.opticubes.proxy.ClientProxy", serverSide = "io.socol.opticubes.proxy.CommonProxy")
     public static CommonProxy proxy;
@@ -39,6 +40,8 @@ public class OptiCubes {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         proxy.preInit(event);
+        Config.setConfigDir(event.getModConfigurationDirectory());
+        OCConfigs.load();
     }
 
     @EventHandler
