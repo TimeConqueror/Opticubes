@@ -35,16 +35,16 @@ public class Region {
     }
 
     public Region(BlockPos pos) {
-        this(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1);
+        this(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
     }
 
     public Region(BlockPos pos1, BlockPos pos2) {
-        this.x0 = Math.min(pos1.x, pos2.x);
-        this.y0 = Math.min(pos1.y, pos2.y);
-        this.z0 = Math.min(pos1.z, pos2.z);
-        this.x1 = Math.max(pos1.x, pos2.x) + 1;
-        this.y1 = Math.max(pos1.y, pos2.y) + 1;
-        this.z1 = Math.max(pos1.z, pos2.z) + 1;
+        this.x0 = Math.min(pos1.getX(), pos2.getX());
+        this.y0 = Math.min(pos1.getY(), pos2.getY());
+        this.z0 = Math.min(pos1.getZ(), pos2.getZ());
+        this.x1 = Math.max(pos1.getX(), pos2.getX()) + 1;
+        this.y1 = Math.max(pos1.getY(), pos2.getY()) + 1;
+        this.z1 = Math.max(pos1.getZ(), pos2.getZ()) + 1;
     }
 
     public static Region createProper(int x0, int y0, int z0, int x1, int y1, int z1) {
@@ -73,7 +73,7 @@ public class Region {
     }
 
     public boolean contains(BlockPos pos) {
-        return contains(pos.x, pos.y, pos.z);
+        return contains(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public Region move(int x, int y, int z) {
@@ -81,7 +81,7 @@ public class Region {
     }
 
     public Region move(BlockPos pos) {
-        return move(pos.x, pos.y, pos.z);
+        return move(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Nullable
@@ -190,11 +190,11 @@ public class Region {
     }
 
     public boolean equals(BlockPos pos) {
-        return x0 == pos.x && y0 == pos.y && z0 == pos.z && x1 == (pos.x + 1) && y1 == (pos.y + 1) && z1 == (pos.z + 1);
+        return x0 == pos.getX() && y0 == pos.getY() && z0 == pos.getZ() && x1 == (pos.getX() + 1) && y1 == (pos.getY() + 1) && z1 == (pos.getZ() + 1);
     }
 
 
     public Region asRelative(BlockPos opiCubePos) {
-        return move(-opiCubePos.x, -opiCubePos.y, -opiCubePos.z);
+        return move(-opiCubePos.getX(), -opiCubePos.getY(), -opiCubePos.getZ());
     }
 }

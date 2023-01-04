@@ -50,7 +50,7 @@ public class OptiCubeRegionEditingSession {
             return;
         }
 
-        TileEntity tile = world.getTileEntity(optiCubePos.x, optiCubePos.y, optiCubePos.z);
+        TileEntity tile = world.getTileEntity(optiCubePos.getX(), optiCubePos.getY(), optiCubePos.getZ());
         if (tile instanceof TileEntityOptiCube) {
             if (type == OptiCubeRegionType.AFFECTED_REGION) {
                 ((TileEntityOptiCube) tile).setAffectedRegion(region.asRelative(optiCubePos));

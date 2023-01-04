@@ -46,7 +46,7 @@ public class OptiCubeEditingService {
 
     public void setOptiCubeRadius(EntityPlayerMP player, BlockPos optiCubePos, int radius) {
         radius = MathHelper.clamp_int(radius, OptiCube.MIN_RADIUS, OptiCube.MAX_RADIUS);
-        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos.x, optiCubePos.y, optiCubePos.z);
+        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos.getX(), optiCubePos.getY(), optiCubePos.getZ());
         if (tile instanceof TileEntityOptiCube) {
             ((TileEntityOptiCube) tile).setRadius(radius);
         }

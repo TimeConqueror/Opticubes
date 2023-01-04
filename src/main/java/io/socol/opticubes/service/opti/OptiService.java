@@ -8,6 +8,7 @@ import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;

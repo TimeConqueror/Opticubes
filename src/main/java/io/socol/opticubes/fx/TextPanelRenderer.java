@@ -25,7 +25,7 @@ public class TextPanelRenderer {
         float scale = 1 / size;
         GL11.glPushMatrix();
 
-        GL11.glTranslated(pos.x - TileEntityRendererDispatcher.staticPlayerX + 0.5, pos.y - TileEntityRendererDispatcher.staticPlayerY + 0.5, pos.z - TileEntityRendererDispatcher.staticPlayerZ + 0.5);
+        GL11.glTranslated(pos.getX() - TileEntityRendererDispatcher.staticPlayerX + 0.5, pos.getY() - TileEntityRendererDispatcher.staticPlayerY + 0.5, pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ + 0.5);
 
         if (side > 1) {
             GL11.glRotated((side > 3 ? 270 : 180) + side * 180, 0, 1, 0);

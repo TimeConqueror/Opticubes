@@ -228,6 +228,10 @@ public class BlockPos extends Vector3i {
         return new BlockPos(this.getY() * vec.getZ() - this.getZ() * vec.getY(), this.getZ() * vec.getX() - this.getX() * vec.getZ(), this.getX() * vec.getY() - this.getY() * vec.getX());
     }
 
+    public ChunkPos getChunkPos() {
+        return new ChunkPos(getX() >> 4, getZ() >> 4);
+    }
+
     /**
      * Returns a version of this BlockPos that is guaranteed to be immutable.
      *
