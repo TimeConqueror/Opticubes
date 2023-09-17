@@ -105,7 +105,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
         if (isBlockSelected && world.getBlock(hitResult.blockX, hitResult.blockY, hitResult.blockZ) == OptiBlocks.OPTICUBE) {
             BlockPos blockPos = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
-            return OptiCubes.getOptiService().getOptiCube(blockPos);
+            return OptiCubes.getOptiClientService().getOptiCube(blockPos);
         }
         return null;
     }
@@ -188,7 +188,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
             boolean isBlockSelected = hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK;
 
             if (currentRegionEditingSession != null) {
-                OptiCube optiCube = OptiCubes.getOptiService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
+                OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
                 if (optiCube != null) {
                     if (optiCube.hasExternalRegion()) {
                         RegionRenderer.addRegion(new Region(optiCube.getPos()), 0xFF1CDD7A).inflate(1 / 256f).ignoreDepth();
@@ -217,7 +217,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
             if (isBlockSelected && player.getEntityWorld().getBlock(hitResult.blockX, hitResult.blockY, hitResult.blockZ) == OptiBlocks.OPTICUBE) {
                 BlockPos blockPos = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
-                OptiCube optiCube = OptiCubes.getOptiService().getOptiCube(blockPos);
+                OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(blockPos);
                 if (optiCube != null) {
                     radiusEditingOptiCube = optiCube.getPos();
                     int radius = optiCube.getRadius();

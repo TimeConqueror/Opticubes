@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 
 public class OptiServiceRenderer {
 
-    public static void render(OptiService service, float partialTicks) {
+    public static void render(OptiClientService service, float partialTicks) {
         EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
         if (player == null) {
             return;

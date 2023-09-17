@@ -49,14 +49,14 @@ public class TileEntityOptiCube extends TileEntity {
             readCommon(pkt.getNbtCompound());
         }
         if (worldObj != null && worldObj.isRemote) {
-            OptiCubes.getOptiService().addOptiCube(this);
+            OptiCubes.getOptiClientService().addOptiCube(this);
         }
     }
 
     @Override
     public void onChunkUnload() {
         if (worldObj != null && worldObj.isRemote) {
-            OptiCubes.getOptiService().removeOptiCube(this);
+            OptiCubes.getOptiClientService().removeOptiCube(this);
         }
     }
 
@@ -64,7 +64,7 @@ public class TileEntityOptiCube extends TileEntity {
     public void invalidate() {
         super.invalidate();
         if (worldObj != null && worldObj.isRemote) {
-            OptiCubes.getOptiService().removeOptiCube(this);
+            OptiCubes.getOptiClientService().removeOptiCube(this);
         }
     }
 

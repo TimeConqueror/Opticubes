@@ -16,7 +16,7 @@ public class RenderingRegistryMixin {
 
     @Inject(method = "renderWorldBlock", at = @At(value = "INVOKE", target = "Lcpw/mods/fml/client/registry/ISimpleBlockRenderingHandler;renderWorldBlock(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;ILnet/minecraft/client/renderer/RenderBlocks;)Z", shift = At.Shift.BEFORE), cancellable = true)
     public void onRenderWorldBlock(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int modelId, CallbackInfoReturnable<Boolean> cir) {
-        if (OptiCubes.getOptiService().skipBlockRender(block, new BlockPos(x, y, z))) {
+        if (OptiCubes.getOptiClientService().skipBlockRender(block, new BlockPos(x, y, z))) {
             cir.setReturnValue(false);
         }
     }

@@ -9,6 +9,8 @@ import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.particle.EntityFX;
+import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,13 +18,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class OptiService {
+public class OptiClientService {
 
     private final Map<BlockPos, OptiCube> optiCubes = new HashMap<>();
 
     private final OptiRegionMap regionMap = new OptiRegionMap();
 
-    public OptiService() {
+    public OptiClientService() {
         FMLCommonHandler.instance().bus().register(new ForgeListener());
         MinecraftForge.EVENT_BUS.register(new EventListener());
     }
@@ -118,6 +120,18 @@ public class OptiService {
         return regionMap.contains(BlockPos.of(tile));
     }
 
+    public boolean skipSpawnParticle(EntityFX particle) {
+        return skipSpawnParticle(BlockPos.of(particle));
+    }
+
+    public boolean skipSpawnParticle(BlockPos particlePos) {
+        return regionMap.contains(particlePos);
+    }
+
+    public boolean skipSpawnEntity(Entity entity) {
+        return regionMap.contains(BlockPos.of(entity));
+    }
+
     public boolean skipBlockRender(Block block, BlockPos pos) {
         return (!block.isFullBlock() || !block.isOpaqueCube()) && regionMap.contains(pos);
     }
@@ -155,7 +169,7 @@ public class OptiService {
     public class EventListener {
         @SubscribeEvent
         public void onRender(RenderWorldLastEvent event) {
-            OptiServiceRenderer.render(OptiService.this, event.partialTicks);
+            OptiServiceRenderer.render(OptiClientService.this, event.partialTicks);
         }
     }
 

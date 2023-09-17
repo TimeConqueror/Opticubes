@@ -11,9 +11,10 @@ import cpw.mods.fml.relauncher.Side;
 import io.socol.opticubes.proxy.CommonProxy;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeEditingService;
-import io.socol.opticubes.service.opti.OptiService;
+import io.socol.opticubes.service.opti.OptiClientService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import timecore.api.common.config.Config;
 
 @Mod(modid = OptiCubes.MODID, version = OptiCubes.VERSION, dependencies = "required-after:spongemixins@[1.1.0,);")
@@ -25,12 +26,12 @@ public class OptiCubes {
     @SidedProxy(clientSide = "io.socol.opticubes.proxy.ClientProxy", serverSide = "io.socol.opticubes.proxy.CommonProxy")
     public static CommonProxy proxy;
 
-    private static OptiService optiService = null;
+    private static OptiClientService optiClientService = null;
     private static OptiCubeEditingService editingService;
 
     public OptiCubes() {
         if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
-            optiService = new OptiService();
+            optiClientService = new OptiClientService();
             editingService = new ClientOptiCubeEditingService();
         } else {
             editingService = new OptiCubeEditingService();
@@ -54,8 +55,8 @@ public class OptiCubes {
         proxy.postInit(event);
     }
 
-    public static OptiService getOptiService() {
-        return optiService;
+    public static OptiClientService getOptiClientService() {
+        return optiClientService;
     }
 
     public static OptiCubeEditingService getEditingService() {
