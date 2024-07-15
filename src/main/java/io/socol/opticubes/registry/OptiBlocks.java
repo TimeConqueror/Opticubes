@@ -15,7 +15,7 @@ public class OptiBlocks {
     }
 
     private static void registerBlock(Block block, String id) {
-        block.setUnlocalizedName(OptiCubes.MODID + "." + id);
+        block.setBlockName(OptiCubes.MODID + "." + id);
         block.setCreativeTab(CreativeTabs.tabMisc);
         GameRegistry.registerBlock(block, id);
     }

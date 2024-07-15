@@ -5,6 +5,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import io.socol.opticubes.OCConfigs;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
+import io.socol.opticubes.utils.Mappings;
 import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -133,7 +134,7 @@ public class OptiClientService {
     }
 
     public boolean skipBlockRender(Block block, BlockPos pos) {
-        return (!block.isFullBlock() || !block.isOpaqueCube()) && regionMap.contains(pos);
+        return (!Mappings.isFullBlock(block) || !block.isOpaqueCube()) && regionMap.contains(pos);
     }
 
     public class ForgeListener {

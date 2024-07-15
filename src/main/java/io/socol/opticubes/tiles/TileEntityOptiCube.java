@@ -1,6 +1,7 @@
 package io.socol.opticubes.tiles;
 
 import io.socol.opticubes.OptiCubes;
+import io.socol.opticubes.utils.Mappings;
 import io.socol.opticubes.utils.NBTUtils;
 import io.socol.opticubes.utils.Region;
 import net.minecraft.nbt.NBTTagCompound;
@@ -45,8 +46,8 @@ public class TileEntityOptiCube extends TileEntity {
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-        if (pkt.getNbtCompound() != null) {
-            readCommon(pkt.getNbtCompound());
+        if (Mappings.getNbtCompound(pkt) != null) {
+            readCommon(Mappings.getNbtCompound(pkt));
         }
         if (worldObj != null && worldObj.isRemote) {
             OptiCubes.getOptiClientService().addOptiCube(this);
