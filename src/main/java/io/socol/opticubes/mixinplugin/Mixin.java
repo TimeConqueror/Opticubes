@@ -16,7 +16,8 @@ public enum Mixin {
     INVENTORY_PLAYER("InventoryPlayerMixin", Side.CLIENT, TargetedMod.VANILLA),
     RENDERING_REGISTRY("RenderingRegistryMixin", Side.CLIENT, TargetedMod.VANILLA),
     EFFECT_RENDERER("EffectRendererMixin", Side.CLIENT, TargetedMod.VANILLA),
-    RENDER_GLOBAL("RenderGlobalMixin", Side.CLIENT, TargetedMod.VANILLA)
+    RENDER_GLOBAL("RenderGlobalMixin", Side.CLIENT, TargetedMod.VANILLA),
+    RENDER_MANAGER("RenderManagerMixin", Side.CLIENT, TargetedMod.VANILLA)
     ;
 
     public final String mixinClass;

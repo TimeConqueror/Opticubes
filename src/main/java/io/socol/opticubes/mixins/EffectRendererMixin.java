@@ -14,7 +14,7 @@ public class EffectRendererMixin {
 
     @Inject(method = "addEffect", at = @At("HEAD"), cancellable = true)
     public void opticubes$onAddEffect(EntityFX particle, CallbackInfo ci) {
-        if (OptiCubes.getOptiClientService().skipSpawnParticle(particle)) {
+        if (OptiCubes.getOptiClientService().skipParticleSpawn(particle)) {
             ci.cancel();
         }
     }

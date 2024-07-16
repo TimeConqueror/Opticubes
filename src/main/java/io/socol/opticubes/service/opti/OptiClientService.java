@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,9 +36,9 @@ public class OptiClientService {
         OptiCube prevOptiCube = removeOptiCubeInternal(optiCubePos);
 
         OptiCube optiCube = new OptiCube(
-                optiCubePos,
-                tile.getAffectedRegion().move(optiCubePos),
-                tile.getRadius()
+            optiCubePos,
+            tile.getAffectedRegion().move(optiCubePos),
+            tile.getRadius()
         );
         optiCube.checkEnabled();
         optiCubes.put(optiCubePos, optiCube);
@@ -121,15 +122,18 @@ public class OptiClientService {
         return regionMap.contains(BlockPos.of(tile));
     }
 
-    public boolean skipSpawnParticle(EntityFX particle) {
-        return skipSpawnParticle(BlockPos.of(particle));
+    public boolean skipParticleSpawn(EntityFX particle) {
+        return skipParticleSpawn(BlockPos.of(particle));
     }
 
-    public boolean skipSpawnParticle(BlockPos particlePos) {
+    public boolean skipParticleSpawn(BlockPos particlePos) {
         return regionMap.contains(particlePos);
     }
 
-    public boolean skipSpawnEntity(Entity entity) {
+    public boolean skipEntityRender(Entity entity) {
+        if (entity instanceof EntityPlayer) {
+            return false;
+        }
         return regionMap.contains(BlockPos.of(entity));
     }
 
