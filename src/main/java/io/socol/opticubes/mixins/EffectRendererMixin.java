@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SuppressWarnings("UnusedMixin")
-@Mixin(EffectRenderer.class)
+@Mixin(value = EffectRenderer.class, priority = 1000000000)
 public class EffectRendererMixin {
 
     @Inject(method = "addEffect", at = @At("HEAD"), cancellable = true)

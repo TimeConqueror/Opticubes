@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @SuppressWarnings("UnusedMixin")
-@Mixin(RenderGlobal.class)
+@Mixin(value = RenderGlobal.class, priority = 1000000000)
 public class RenderGlobalMixin {
 
     @Inject(method = "doSpawnParticle", at = @At("HEAD"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
