@@ -1,5 +1,6 @@
 package io.socol.opticubes.service.opti;
 
+import io.socol.opticubes.OptiFeatures;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.utils.Region;
@@ -8,6 +9,7 @@ import io.socol.opticubes.utils.pos.ChunkPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.Collections;
@@ -28,8 +30,9 @@ public class OptiCube {
     private final BlockPos pos;
     private final Region region; // absolute
     private final int radius;
+    private final long featureMask;
 
-    private boolean enabled = false; // true -> hide tiles
+    private boolean enabled = false; // true -> enable features
     private double distance;
 
     private List<ChunkPos> affectedChunks = Collections.emptyList();
@@ -40,10 +43,11 @@ public class OptiCube {
 
     private int color = 0xFFFFFFFF;
 
-    public OptiCube(BlockPos pos, Region region, int radius) {
+    public OptiCube(BlockPos pos, Region region, int radius, long featureMask) {
         this.pos = pos;
         this.region = region;
         this.radius = radius;
+        this.featureMask = featureMask;
 
         this.hasExternalRegion = !region.equals(pos);
     }
@@ -67,6 +71,10 @@ public class OptiCube {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isFeatureEnabled(@Nullable OptiFeatures feature) {
+        return feature == null || feature.isEnabled(featureMask);
     }
 
     public BlockPos getPos() {

@@ -30,6 +30,6 @@ public class ChunkPos {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, z);
+        return x + z * 31;
     }
 }

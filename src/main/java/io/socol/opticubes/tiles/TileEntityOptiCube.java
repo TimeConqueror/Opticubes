@@ -1,6 +1,7 @@
 package io.socol.opticubes.tiles;
 
 import io.socol.opticubes.OptiCubes;
+import io.socol.opticubes.OptiFeatures;
 import io.socol.opticubes.utils.Mappings;
 import io.socol.opticubes.utils.NBTUtils;
 import io.socol.opticubes.utils.Region;
@@ -12,8 +13,11 @@ import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityOptiCube extends TileEntity {
 
+    private static final int DEFAULT_RADIUS = 16;
+
     private Region affectedRegion = Region.BLOCK;
-    private int radius = 16;
+    private int radius = DEFAULT_RADIUS;
+    private long featureMask = OptiFeatures.DEFAULT_MASK;
 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
@@ -30,11 +34,13 @@ public class TileEntityOptiCube extends TileEntity {
     private void writeCommon(NBTTagCompound compound) {
         NBTUtils.setRegion(compound, "Region", affectedRegion);
         compound.setInteger("Radius", radius);
+        compound.setLong("Features", featureMask);
     }
 
     private void readCommon(NBTTagCompound compound) {
         affectedRegion = NBTUtils.getRegion(compound, "Region");
-        radius = compound.getInteger("Radius");
+        radius = compound.hasKey("Radius") ? compound.getInteger("Radius") : DEFAULT_RADIUS;
+        featureMask = compound.hasKey("Features") ? compound.getLong("Features") : OptiFeatures.DEFAULT_MASK;
     }
 
     @Override
@@ -75,6 +81,10 @@ public class TileEntityOptiCube extends TileEntity {
 
     public int getRadius() {
         return radius;
+    }
+
+    public long getFeatureMask() {
+        return featureMask;
     }
 
     public void setAffectedRegion(Region affectedRegion) {

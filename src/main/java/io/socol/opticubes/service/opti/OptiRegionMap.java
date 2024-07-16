@@ -1,8 +1,10 @@
 package io.socol.opticubes.service.opti;
 
+import io.socol.opticubes.OptiFeatures;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,13 +61,13 @@ public class OptiRegionMap {
         chunk.regions.put(region.optiCube.getPos(), region);
     }
 
-    public boolean contains(BlockPos pos) {
+    public boolean contains(BlockPos pos, @Nullable OptiFeatures feature) {
         OptiChunk chunk = chunks.get(pos.getChunkPos());
         if (chunk == null) {
             return false;
         }
         for (OptiRegion region : chunk.regions.values()) {
-            if (region.optiCube.isEnabled() && region.boundary.contains(pos)) {
+            if (region.optiCube.isEnabled() && region.optiCube.isFeatureEnabled(feature) && region.boundary.contains(pos)) {
                 return true;
             }
         }
