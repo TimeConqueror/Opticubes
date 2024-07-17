@@ -74,6 +74,10 @@ public class OptiRegionMap {
         return false;
     }
 
+    public void clear() {
+        chunks.clear();
+    }
+
     private static class OptiChunk {
         private final Map<BlockPos, OptiRegion> regions = new HashMap<>(); // (Opti-Cube pos) -> (chunked region part)
     }

@@ -2,6 +2,7 @@ package io.socol.opticubes.service.opti;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import io.socol.opticubes.OCConfigs;
 import io.socol.opticubes.OptiFeatures;
@@ -116,6 +117,11 @@ public class OptiClientService {
         }
     }
 
+    private void clearOptiCubes() {
+        optiCubes.clear();
+        regionMap.clear();
+    }
+
     public boolean skipTileRender(TileEntity tile) {
         if (tile instanceof TileEntityOptiCube) {
             return false;
@@ -172,6 +178,16 @@ public class OptiClientService {
             for (BlockPos pos : blocksToUpdate) {
                 Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
             }
+        }
+
+        @SubscribeEvent
+        public void onPlayerChangeWorld(PlayerEvent.PlayerChangedDimensionEvent event) {
+            clearOptiCubes();
+        }
+
+        @SubscribeEvent
+        public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+            clearOptiCubes();
         }
     }
 
