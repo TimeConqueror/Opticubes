@@ -191,7 +191,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
             }
 
             MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
-            boolean isBlockSelected = hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK;
+            boolean isBlockSelected = hitResult != null && (hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.MISS);
 
             if (currentRegionEditingSession != null) {
                 OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());

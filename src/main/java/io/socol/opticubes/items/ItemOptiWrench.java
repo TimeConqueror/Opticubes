@@ -5,12 +5,14 @@ import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.utils.pos.BlockPos;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -41,6 +43,21 @@ public class ItemOptiWrench extends Item {
             }
         }
         return false;
+    }
+
+    @Override
+    public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
+        if (world.isRemote && ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
+            MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
+            if (hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.MISS) {
+                if (player.isSneaking()) {
+                    ClientOptiCubeEditingService.getInstance().stopRegionEditingSession(null);
+                } else {
+                    ClientOptiCubeEditingService.getInstance().addRegionPoint(new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ));
+                }
+            }
+        }
+        return super.onItemRightClick(itemStack, world, player);
     }
 
     @Override
