@@ -127,8 +127,8 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         }
         if (currentRadiusEditingSession == null) {
             currentRadiusEditingSession = new OptiCubeRadiusEditingSession(
-                    optiCube.getPos(), optiCube.getRadius(),
-                    player.ticksExisted
+                optiCube.getPos(), optiCube.getRadius(),
+                player.ticksExisted
             );
         }
         currentRadiusEditingSession.modifyRadius(Integer.compare(i, 0));
@@ -154,6 +154,12 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                     stopRadiusEditingSession();
                 } else {
                     currentRadiusEditingSession.update(player.ticksExisted);
+                }
+            }
+            if (currentRegionEditingSession != null) {
+                OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
+                if (optiCube == null) {
+                    stopRegionEditingSession(null);
                 }
             }
         }
@@ -228,10 +234,10 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                     }
 
                     TextPanelRenderer.renderText(
-                            new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ),
-                            radius == -1 ? "x" : Integer.toString(radius),
-                            hitResult.sideHit, currentRadiusEditingSession != null,
-                            time, event.partialTicks
+                        new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ),
+                        radius == -1 ? "x" : Integer.toString(radius),
+                        hitResult.sideHit, currentRadiusEditingSession != null,
+                        time, event.partialTicks
                     );
                 }
             }
