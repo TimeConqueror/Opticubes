@@ -5,6 +5,7 @@ public enum OptiFeatures {
     HIDE_TILES(true),
     HIDE_PARTICLES(true),
     HIDE_ENTITIES(false),
+    HIDE_DROPPED_ITEMS(false),
     HIDE_SPECIAL_BLOCKS(false);
 
     private final boolean enabledByDefault;

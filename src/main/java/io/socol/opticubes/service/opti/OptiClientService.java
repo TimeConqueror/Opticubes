@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -145,6 +146,9 @@ public class OptiClientService {
     public boolean skipEntityRender(Entity entity) {
         if (entity instanceof EntityPlayer) {
             return false;
+        }
+        if (entity instanceof EntityItem) {
+            return regionMap.contains(BlockPos.of(entity), OptiFeatures.HIDE_DROPPED_ITEMS);
         }
         return regionMap.contains(BlockPos.of(entity), OptiFeatures.HIDE_ENTITIES);
     }
