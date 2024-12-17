@@ -3,3 +3,7 @@
 plugins {
     id 'com.gtnewhorizons.gtnhconvention'
 }
+
+dependencies {
+    implementation group: 'com.github.seancfoley', name: 'ipaddress', version: '5.3.3'
+}

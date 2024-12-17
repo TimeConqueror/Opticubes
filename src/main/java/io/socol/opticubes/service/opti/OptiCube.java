@@ -1,6 +1,6 @@
 package io.socol.opticubes.service.opti;
 
-import io.socol.opticubes.OptiFeatures;
+import io.socol.opticubes.OptiFeature;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
 import io.socol.opticubes.utils.Region;
@@ -73,8 +73,12 @@ public class OptiCube {
         return enabled;
     }
 
-    public boolean isFeatureEnabled(@Nullable OptiFeatures feature) {
+    public boolean isFeatureEnabled(@Nullable OptiFeature feature) {
         return feature == null || feature.isEnabled(featureMask);
+    }
+
+    public long getFeaturesMask() {
+        return featureMask;
     }
 
     public BlockPos getPos() {

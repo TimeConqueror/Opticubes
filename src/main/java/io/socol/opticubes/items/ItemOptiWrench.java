@@ -61,6 +61,24 @@ public class ItemOptiWrench extends Item {
     }
 
     @Override
+    public boolean onBlockStartBreak(ItemStack itemstack, int x, int y, int z, EntityPlayer player) {
+        if (!player.isSneaking()) {
+            return super.onBlockStartBreak(itemstack, x, y, z, player);
+        }
+        World world = player.worldObj;
+        if (world.getBlock(x, y, z) != OptiBlocks.OPTICUBE) {
+            return super.onBlockStartBreak(itemstack, x, y, z, player);
+        }
+        if (!player.worldObj.isRemote) {
+            OptiCubes.getEditingService().startSettingsEditingSession(
+                (EntityPlayerMP) player,
+                new BlockPos(x, y, z)
+            );
+        }
+        return true;
+    }
+
+    @Override
     public EnumRarity getRarity(ItemStack stack) {
         return EnumRarity.rare;
     }
@@ -74,6 +92,7 @@ public class ItemOptiWrench extends Item {
         tooltip.add(I18n.format("item.opticubes.optiwrench.usage.stop_region_editing"));
         tooltip.add(I18n.format("item.opticubes.optiwrench.usage.create_region"));
         tooltip.add(I18n.format("item.opticubes.optiwrench.usage.change_radius"));
+        tooltip.add(I18n.format("item.opticubes.optiwrench.usage.start_settings_editing"));
     }
 
     public static boolean isOptiWrench(ItemStack stack) {

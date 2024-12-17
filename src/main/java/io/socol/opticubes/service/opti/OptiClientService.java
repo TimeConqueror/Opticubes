@@ -5,7 +5,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import io.socol.opticubes.OCConfigs;
-import io.socol.opticubes.OptiFeatures;
+import io.socol.opticubes.OptiFeature;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.Mappings;
 import io.socol.opticubes.utils.pos.BlockPos;
@@ -42,7 +42,7 @@ public class OptiClientService {
             optiCubePos,
             tile.getAffectedRegion().move(optiCubePos),
             tile.getRadius(),
-            tile.getFeatureMask()
+            tile.getFeaturesMask()
         );
         optiCube.checkEnabled();
         optiCubes.put(optiCubePos, optiCube);
@@ -79,10 +79,10 @@ public class OptiClientService {
 
         boolean prevEnabled = prevOptiCube != null && prevOptiCube.isEnabled();
         boolean newEnabled = newOptiCube != null && newOptiCube.isEnabled();
-        Set<BlockPos> prevAffectedChunks = prevOptiCube == null || !prevOptiCube.isFeatureEnabled(OptiFeatures.HIDE_SPECIAL_BLOCKS)
+        Set<BlockPos> prevAffectedChunks = prevOptiCube == null || !prevOptiCube.isFeatureEnabled(OptiFeature.HIDE_SPECIAL_BLOCKS)
             ? Collections.emptySet()
             : prevOptiCube.getAffectedMicroChunks();
-        Set<BlockPos> newAffectedChunks = newOptiCube == null || !newOptiCube.isFeatureEnabled(OptiFeatures.HIDE_SPECIAL_BLOCKS)
+        Set<BlockPos> newAffectedChunks = newOptiCube == null || !newOptiCube.isFeatureEnabled(OptiFeature.HIDE_SPECIAL_BLOCKS)
             ? Collections.emptySet()
             : newOptiCube.getAffectedMicroChunks();
 
@@ -132,7 +132,7 @@ public class OptiClientService {
             return false;
         }
 
-        return regionMap.contains(BlockPos.of(tile), OptiFeatures.HIDE_TILES);
+        return regionMap.contains(BlockPos.of(tile), OptiFeature.HIDE_TILES);
     }
 
     public boolean skipParticleSpawn(EntityFX particle) {
@@ -140,7 +140,7 @@ public class OptiClientService {
     }
 
     public boolean skipParticleSpawn(BlockPos particlePos) {
-        return regionMap.contains(particlePos, OptiFeatures.HIDE_PARTICLES);
+        return regionMap.contains(particlePos, OptiFeature.HIDE_PARTICLES);
     }
 
     public boolean skipEntityRender(Entity entity) {
@@ -148,13 +148,13 @@ public class OptiClientService {
             return false;
         }
         if (entity instanceof EntityItem) {
-            return regionMap.contains(BlockPos.of(entity), OptiFeatures.HIDE_DROPPED_ITEMS);
+            return regionMap.contains(BlockPos.of(entity), OptiFeature.HIDE_DROPPED_ITEMS);
         }
-        return regionMap.contains(BlockPos.of(entity), OptiFeatures.HIDE_ENTITIES);
+        return regionMap.contains(BlockPos.of(entity), OptiFeature.HIDE_ENTITIES);
     }
 
     public boolean skipSpecialBlockRender(Block block, BlockPos pos) {
-        return (!Mappings.isFullBlock(block) || !block.isOpaqueCube()) && regionMap.contains(pos, OptiFeatures.HIDE_SPECIAL_BLOCKS);
+        return (!Mappings.isFullBlock(block) || !block.isOpaqueCube()) && regionMap.contains(pos, OptiFeature.HIDE_SPECIAL_BLOCKS);
     }
 
     public class ForgeListener {
@@ -173,7 +173,7 @@ public class OptiClientService {
 
             for (OptiCube optiCube : optiCubes.values()) {
                 if (optiCube.checkEnabled(player.getEntityWorld(), cameraX, cameraY, cameraZ)) {
-                    if (optiCube.isFeatureEnabled(OptiFeatures.HIDE_SPECIAL_BLOCKS)) {
+                    if (optiCube.isFeatureEnabled(OptiFeature.HIDE_SPECIAL_BLOCKS)) {
                         blocksToUpdate.addAll(optiCube.getAffectedMicroChunks());
                     }
                 }

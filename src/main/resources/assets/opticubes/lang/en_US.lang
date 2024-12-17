@@ -3,11 +3,12 @@ tile.opticubes.opticube.name=Opti-Cube
 # Items
 item.opticubes.optiwrench.name=Opti-Wrench
 # Usage
-item.opticubes.optiwrench.usage.held=Held in hand to view Opti-Cube regions
+item.opticubes.optiwrench.usage.held=Hold in hand to view Opti-Cube regions
 item.opticubes.optiwrench.usage.start_region_editing=<Sneak + R-Click> on Opti-Cube to edit its region
 item.opticubes.optiwrench.usage.stop_region_editing=<Sneak + R-Click> on any block to stop region editing
 item.opticubes.optiwrench.usage.create_region=<R-Click> on any two blocks during region editing to define region
 item.opticubes.optiwrench.usage.change_radius=Target Opti-Cube and scroll wheel to change Opti-Cube radius
+item.opticubes.optiwrench.usage.start_settings_editing=<Sneak + L-Click> on Opti-Cube to edit its settings
 
 chat.opticubes.region_too_big=Region %sx%sx%s is too big. Max size is %sx%sx%s.
 chat.opticubes.owner_cube_far_away=Bound Opti-Cube should be inside or next to the region.
@@ -16,3 +17,9 @@ opticubes.command.usage=Use '/opticubes help' to see available subcommands
 opticubes.command.reloadconfigs.success=Configs were reloaded
 opticubes.command.reloadconfigs.usage=%s - Reloads all OptiCubes' configs
 opticubes.command.help.usage=%s - Shows help menu
+
+opticubes.feature.hide_tiles=Hide Tiles
+opticubes.feature.hide_particles=Hide Particles
+opticubes.feature.hide_entities=Hide Entities
+opticubes.feature.hide_dropped_items=Hide Dropped Items
+opticubes.feature.hide_special_blocks=Hide Special Blocks

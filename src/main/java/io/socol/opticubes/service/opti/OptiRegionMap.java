@@ -1,6 +1,6 @@
 package io.socol.opticubes.service.opti;
 
-import io.socol.opticubes.OptiFeatures;
+import io.socol.opticubes.OptiFeature;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
 import io.socol.opticubes.utils.pos.ChunkPos;
@@ -61,7 +61,7 @@ public class OptiRegionMap {
         chunk.regions.put(region.optiCube.getPos(), region);
     }
 
-    public boolean contains(BlockPos pos, @Nullable OptiFeatures feature) {
+    public boolean contains(BlockPos pos, @Nullable OptiFeature feature) {
         OptiChunk chunk = chunks.get(pos.getChunkPos());
         if (chunk == null) {
             return false;

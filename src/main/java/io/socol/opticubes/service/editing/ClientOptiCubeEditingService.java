@@ -8,10 +8,12 @@ import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.fx.TextPanelRenderer;
 import io.socol.opticubes.items.ItemOptiWrench;
+import io.socol.opticubes.network.serverbound.StopOptiCubeSettingsEditingMessage;
 import io.socol.opticubes.network.serverbound.StopOptiCubeRegionEditingMessage;
 import io.socol.opticubes.proxy.ClientProxy;
 import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.registry.OptiNetwork;
+import io.socol.opticubes.screen.OptiCubeSettingsScreen;
 import io.socol.opticubes.service.opti.OptiCube;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.pos.BlockPos;
@@ -139,6 +141,19 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         currentRegionEditingSession = null;
         currentRadiusEditingSession = null;
         firstRegionPoint = null;
+    }
+
+    public void startSettingsEditingSession(World world, BlockPos optiCubePos, long featuresMask) {
+        OptiCubeSettingsEditingSession session = new OptiCubeSettingsEditingSession(
+            optiCubePos,
+            world.getTotalWorldTime(),
+            featuresMask
+        );
+        Minecraft.getMinecraft().displayGuiScreen(new OptiCubeSettingsScreen(session));
+    }
+
+    public void stopSettingsEditingSession(BlockPos optiCubePos, long featuresMask) {
+        OptiNetwork.NETWORK.sendToServer(new StopOptiCubeSettingsEditingMessage(optiCubePos, featuresMask));
     }
 
     public class ForgeListener {
