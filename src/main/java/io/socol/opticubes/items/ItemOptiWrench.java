@@ -62,6 +62,7 @@ public class ItemOptiWrench extends Item {
 
     @Override
     public boolean onBlockStartBreak(ItemStack itemstack, int x, int y, int z, EntityPlayer player) {
+        // works in creative gamemode only
         if (!player.isSneaking()) {
             return super.onBlockStartBreak(itemstack, x, y, z, player);
         }
