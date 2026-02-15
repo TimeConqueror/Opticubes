@@ -14,8 +14,6 @@ public class ProtoUtils {
     }
 
     public static Region readRegion(ByteBuf buf) {
-        long pos0 = buf.readLong();
-        long pos1 = buf.readLong();
         return new Region(
                 buf.readInt(),
                 buf.readInt(),

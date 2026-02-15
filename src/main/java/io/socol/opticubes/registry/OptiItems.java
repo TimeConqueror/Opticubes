@@ -5,6 +5,8 @@ import io.socol.opticubes.items.ItemOptiWrench;
 import io.socol.opticubes.utils.EasyRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class OptiItems {
     private static final EasyRegistry REGISTRY = new EasyRegistry(OptiCubes.MODID, CreativeTabs.TOOLS);
@@ -13,5 +15,10 @@ public class OptiItems {
 
     public static void register() {
         REGISTRY.registerItem(OPTIWRENCH, "optiwrench");
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void registerRenderers() {
+        REGISTRY.registerItemRender(OPTIWRENCH);
     }
 }

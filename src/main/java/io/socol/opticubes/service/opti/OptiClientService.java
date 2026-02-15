@@ -168,7 +168,6 @@ public class OptiClientService {
         return regionMap.contains(pos, OptiFeature.HIDE_SPECIAL_BLOCKS);
     }
 
-    //fixme check
     public class ForgeListener {
         @SubscribeEvent
         public void onTick(TickEvent.ClientTickEvent event) {
@@ -213,7 +212,6 @@ public class OptiClientService {
         return optiCubes;
     }
 
-    //FIXME check
     public class EventListener {
         @SubscribeEvent
         public void onRender(RenderWorldLastEvent event) {

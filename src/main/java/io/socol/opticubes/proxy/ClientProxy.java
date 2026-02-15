@@ -2,6 +2,8 @@ package io.socol.opticubes.proxy;
 
 import io.socol.opticubes.OCClientCommand;
 import io.socol.opticubes.fx.RegionRenderer;
+import io.socol.opticubes.registry.OptiBlocks;
+import io.socol.opticubes.registry.OptiItems;
 import io.socol.opticubes.registry.OptiTiles;
 import io.socol.opticubes.utils.Hacks;
 import net.minecraft.client.Minecraft;
@@ -29,6 +31,8 @@ public class ClientProxy extends CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
 
+        OptiBlocks.registerRenderers();
+        OptiItems.registerRenderers();
         OptiTiles.registerRenderers();
     }
 

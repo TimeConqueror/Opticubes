@@ -2,7 +2,7 @@ package io.socol.opticubes.fx;
 
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.utils.Region;
-import io.socol.opticubes.utils.TessellatorUtils;
+import io.socol.opticubes.utils.VertexSink;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -49,89 +49,91 @@ public class RegionRenderer {
             }
         }
 
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GlStateManager.enableTexture2D();
         Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
-        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
-        GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_BLEND);
+        GlStateManager.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
+        GlStateManager.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.disableBlend();
 
         BufferBuilder builder = tessellator.getBuffer();
+        VertexSink sink = new VertexSink(builder);
 
         if (!ignoreDepthRegions.isEmpty()) {
-            GL11.glDisable(GL11.GL_DEPTH_TEST);
-            GL11.glDepthMask(true);
+            GlStateManager.disableDepth();
+            GlStateManager.depthMask(true);
 
             if (!regionsWithSides.isEmpty()) {
-                GL11.glEnable(GL11.GL_CULL_FACE);
-                GL11.glEnable(GL11.GL_BLEND);
+                GlStateManager.enableCull();
+                GlStateManager.enableBlend();
                 Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_SIDE_TEXTURE);
 
-                builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+                sink.beginQuads();
                 //FIXME port 12
 //                tessellator.setBrightness(240);
                 for (FXRegion region : regionsWithSides) {
-                    TessellatorUtils.setColor(region.color);
+                    sink.color(region.argbColor);
                     drawSides(
-                            builder, region.box, region.inflate,
-                            -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ
+                            sink, region.box, (float) region.inflate,
+                            (float)-TileEntityRendererDispatcher.staticPlayerX, (float)-TileEntityRendererDispatcher.staticPlayerY, (float)-TileEntityRendererDispatcher.staticPlayerZ
                     );
                 }
                 tessellator.draw();
 
-                GL11.glDisable(GL11.GL_BLEND);
-                GL11.glDisable(GL11.GL_CULL_FACE);
+                GlStateManager.disableBlend();
+                GlStateManager.disableCull();
                 Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
             }
 
-            builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            sink.beginQuads();
             //FIXME port 12
 //            tessellator.setBrightness(240);
             for (FXRegion region : ignoreDepthRegions) {
-                TessellatorUtils.setColor(region.color);
+                sink.color(region.argbColor);
                 drawFrame(
-                        builder, region.box, region.inflate,
-                        -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, false
+                        sink, region.box, (float) region.inflate,
+                        (float)-TileEntityRendererDispatcher.staticPlayerX, (float)-TileEntityRendererDispatcher.staticPlayerY, (float)-TileEntityRendererDispatcher.staticPlayerZ, false
                 );
             }
             tessellator.draw();
 
-            GL11.glEnable(GL11.GL_DEPTH_TEST);
-            GL11.glDepthMask(true);
+            GlStateManager.enableDepth();
+            GlStateManager.depthMask(true);
         }
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        sink.beginQuads();
         //FIXME port 12
 //        tessellator.setBrightness(240);
 
+        System.out.println("Drawing " + regions.size() + "  regions...");
+
         for (FXRegion region : regions) {
-            TessellatorUtils.setColor(region.color);
+            sink.color(region.argbColor);
             drawFrame(
-                    builder, region.box, region.inflate,
-                    -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, true
+                    sink, region.box, (float) region.inflate,
+                    (float)-TileEntityRendererDispatcher.staticPlayerX, (float)-TileEntityRendererDispatcher.staticPlayerY, (float)-TileEntityRendererDispatcher.staticPlayerZ, true
             );
         }
 
         tessellator.draw();
         GlStateManager.color(1, 1,1, 1);
-        builder.setTranslation(0, 0, 0);
-        GL11.glEnable(GL11.GL_BLEND);
+        GlStateManager.enableBlend();
 
         regions.clear();
     }
 
     public static class FXRegion {
         private final Region box;
-        private final int color;
+        private final int argbColor;
         private double inflate;
         private boolean ignoreDepth;
         private boolean withSides;
 
-        public FXRegion(Region box, int color) {
+        public FXRegion(Region box, int argbColor) {
             this.box = box;
-            this.color = color;
+            this.argbColor = argbColor;
         }
 
         public FXRegion inflate(double inflate) {
@@ -150,67 +152,67 @@ public class RegionRenderer {
         }
     }
 
-    private static void drawSides(BufferBuilder builder, Region box, double inflate, double dx, double dy, double dz) {
-        double sx = box.sizeX();
-        double sy = box.sizeY();
-        double sz = box.sizeZ();
+    private static void drawSides(VertexSink sink, Region box, double inflate, float dx, float dy, float dz) {
+        float sx = box.sizeX();
+        float sy = box.sizeY();
+        float sz = box.sizeZ();
 
-        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
+        sink.setTranslation(box.x0 + dx, box.y0 + dy, box.z0 + dz);
 
-        builder.pos(0, sy, 0).tex(0, 0);
-        builder.pos(sx, sy, 0).tex(sx, 0);
-        builder.pos(sx, 0, 0).tex(sx, sy);
-        builder.pos(0, 0, 0).tex(0, sy);
+        sink.pos(0, sy, 0).uv(0, 0).end();
+        sink.pos(sx, sy, 0).uv(sx, 0).end();
+        sink.pos(sx, 0, 0).uv(sx, sy).end();
+        sink.pos(0, 0, 0).uv(0, sy).end();
 
-        builder.pos(sx, sy, sz).tex(-sx, 0);
-        builder.pos(0, sy, sz).tex(0, 0);
-        builder.pos(0, 0, sz).tex(0, sy);
-        builder.pos(sx, 0, sz).tex(-sx, sy);
+        sink.pos(sx, sy, sz).uv(-sx, 0).end();
+        sink.pos(0, sy, sz).uv(0, 0).end();
+        sink.pos(0, 0, sz).uv(0, sy).end();
+        sink.pos(sx, 0, sz).uv(-sx, sy).end();
 
-        builder.pos(0, sy, sz).tex(sz, 0);
-        builder.pos(0, sy, 0).tex(0, 0);
-        builder.pos(0, 0, 0).tex(0, sy);
-        builder.pos(0, 0, sz).tex(sz, sy);
+        sink.pos(0, sy, sz).uv(sz, 0).end();
+        sink.pos(0, sy, 0).uv(0, 0).end();
+        sink.pos(0, 0, 0).uv(0, sy).end();
+        sink.pos(0, 0, sz).uv(sz, sy).end();
 
-        builder.pos(sx, sy, 0).tex(0, 0);
-        builder.pos(sx, sy, sz).tex(-sz, 0);
-        builder.pos(sx, 0, sz).tex(-sz, sy);
-        builder.pos(sx, 0, 0).tex(0, sy);
+        sink.pos(sx, sy, 0).uv(0, 0).end();
+        sink.pos(sx, sy, sz).uv(-sz, 0).end();
+        sink.pos(sx, 0, sz).uv(-sz, sy).end();
+        sink.pos(sx, 0, 0).uv(0, sy).end();
 
-        builder.pos(sx, sy, 0).tex(sx, 0);
-        builder.pos(0, sy, 0).tex(0, 0);
-        builder.pos(0, sy, sz).tex(0, sz);
-        builder.pos(sx, sy, sz).tex(sx, sz);
+        sink.pos(sx, sy, 0).uv(sx, 0).end();
+        sink.pos(0, sy, 0).uv(0, 0).end();
+        sink.pos(0, sy, sz).uv(0, sz).end();
+        sink.pos(sx, sy, sz).uv(sx, sz).end();
 
-        builder.pos(0, 0, 0).tex(0, 0);
-        builder.pos(sx, 0, 0).tex(-sx, 0);
-        builder.pos(sx, 0, sz).tex(-sx, sz);
-        builder.pos(0, 0, sz).tex(0, sz);
+        sink.pos(0, 0, 0).uv(0, 0).end();
+        sink.pos(sx, 0, 0).uv(-sx, 0).end();
+        sink.pos(sx, 0, sz).uv(-sx, sz).end();
+        sink.pos(0, 0, sz).uv(0, sz).end();
     }
 
-    private static void drawFrame(BufferBuilder builder, Region box, double inflate, double dx, double dy, double dz, boolean solid) {
-        double sx = box.sizeX();
-        double sy = box.sizeY();
-        double sz = box.sizeZ();
+    private static void drawFrame(VertexSink sink, Region box, float inflate, float dx, float dy, float dz, boolean solid) {
+        float sx = box.sizeX();
+        float sy = box.sizeY();
+        float sz = box.sizeZ();
 
-        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
-        drawSide(builder,
+        sink.setTranslation(box.x0 + dx, box.y0 + dy, box.z0 + dz);
+        drawSide(sink,
                 1, 0, 0,
                 0, 0, 1,
                 0, sy, 0,
                 sx, sz, inflate, solid
         );
 
-        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
-        drawSide(builder,
+        sink.setTranslation(box.x0 + dx, box.y0 + dy, box.z0 + dz);
+        drawSide(sink,
                 0, 0, 1,
                 0, 1, 0,
                 sx, 0, 0,
                 sz, sy, inflate, solid
         );
 
-        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
-        drawSide(builder,
+        sink.setTranslation(box.x0 + dx, box.y0 + dy, box.z0 + dz);
+        drawSide(sink,
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, sz,
@@ -218,34 +220,39 @@ public class RegionRenderer {
         );
     }
 
-    private static void drawSide(BufferBuilder builder, double dx1, double dy1, double dz1, double dx2, double dy2, double dz2, double dx3, double dy3, double dz3, double w, double h, double inflate, boolean solid) {
+    private static void drawSide(VertexSink sink,
+                                 float dx1, float dy1, float dz1,
+                                 float dx2, float dy2, float dz2,
+                                 float dx3, float dy3, float dz3,
+                                 float w, float h,
+                                 float inflate, boolean solid) {
         // delta coords to move first corner
-        double ix = (dx1 + dx2) * inflate; // inflate x
-        double iy = (dy1 + dy2) * inflate; // inflate y
-        double iz = (dz1 + dz2) * inflate; // inflate z
-        GlStateManager.translate((float) -ix, (float) -iy, (float) -iz);
+        float ix = (dx1 + dx2) * inflate; // inflate x
+        float iy = (dy1 + dy2) * inflate; // inflate y
+        float iz = (dz1 + dz2) * inflate; // inflate z
+        sink.addTranslation(-ix, -iy, -iz);
 
-        float delta = (float) (inflate / (dx3 + dy3 + dz3));
+        float delta = inflate / (dx3 + dy3 + dz3);
 
         // inflated dimensions
-        double iw = w + 2 * inflate;
-        double ih = h + 2 * inflate;
+        float iw = w + 2 * inflate;
+        float ih = h + 2 * inflate;
 
         // three more inflated corners of plane
-        double x1 = dx1 * iw;
-        double y1 = dy1 * iw;
-        double z1 = dz1 * iw;
+        float x1 = dx1 * iw;
+        float y1 = dy1 * iw;
+        float z1 = dz1 * iw;
 
-        double x3 = dx2 * ih;
-        double y3 = dy2 * ih;
-        double z3 = dz2 * ih;
+        float x3 = dx2 * ih;
+        float y3 = dy2 * ih;
+        float z3 = dz2 * ih;
 
-        double x2 = x1 + x3;
-        double y2 = y1 + y3;
-        double z2 = z1 + z3;
+        float x2 = x1 + x3;
+        float y2 = y1 + y3;
+        float z2 = z1 + z3;
 
         // rescale normals (block units -> pixel units)
-        double u = 1 / 16f;
+        float u = 1 / 16f;
         dx1 *= u;
         dy1 *= u;
         dz1 *= u;
@@ -260,33 +267,33 @@ public class RegionRenderer {
 
         for (int i = 0; i < 2; i++) {
             if (i == 0) {
-                GlStateManager.translate((float) -dx3 * delta, (float) -dy3 * delta, (float) -dz3 * delta);
+                sink.addTranslation(-dx3 * delta, -dy3 * delta, -dz3 * delta);
             } else {
                 float d = 1 + 2 * delta;
-                GlStateManager.translate((float) dx3 * d, (float) dy3 * d, (float) dz3 * d);
+                sink.addTranslation(dx3 * d, dy3 * d, dz3 * d);
             }
 
-            double u0 = 0;//(i == 0 ? 1 : -1) * System.currentTimeMillis() % 3000 / 3000f;
+            float u0 = 0;//(i == 0 ? 1 : -1) * System.currentTimeMillis() % 3000 / 3000f;
 
-            builder.pos(0, 0, 0).tex(u0, 0);
-            builder.pos(x1, y1, z1).tex(u0 + w, 0);
-            builder.pos(x1 + dx2, y1 + dy2, z1 + dz2).tex(u0 + w, u);
-            builder.pos(dx2, dy2, dz2).tex( u0, u);
+            sink.pos(0, 0, 0).uv(u0, 0).end();
+            sink.pos(x1, y1, z1).uv(u0 + w, 0).end();
+            sink.pos(x1 + dx2, y1 + dy2, z1 + dz2).uv(u0 + w, u).end();
+            sink.pos(dx2, dy2, dz2).uv( u0, u).end();
 
-            builder.pos(x1, y1, z1).tex( w, u0);
-            builder.pos(x2, y2, z2).tex( w, u0 + h);
-            builder.pos(x2 - dx1, y2 - dy1, z2 - dz1).tex( w - u, u0 + h);
-            builder.pos(x1 - dx1, y1 - dy1, z1 - dz1).tex( w - u, u0);
+            sink.pos(x1, y1, z1).uv( w, u0).end();
+            sink.pos(x2, y2, z2).uv( w, u0 + h).end();
+            sink.pos(x2 - dx1, y2 - dy1, z2 - dz1).uv( w - u, u0 + h).end();
+            sink.pos(x1 - dx1, y1 - dy1, z1 - dz1).uv( w - u, u0).end();
 
-            builder.pos(x2, y2, z2).tex( -u0 + w, h);
-            builder.pos(x3, y3, z3).tex( -u0, h);
-            builder.pos(x3 - dx2, y3 - dy2, z3 - dz2).tex( -u0, h - u);
-            builder.pos(x2 - dx2, y2 - dy2, z2 - dz2).tex( -u0 + w, h - u);
+            sink.pos(x2, y2, z2).uv( -u0 + w, h).end();
+            sink.pos(x3, y3, z3).uv( -u0, h).end();
+            sink.pos(x3 - dx2, y3 - dy2, z3 - dz2).uv( -u0, h - u).end();
+            sink.pos(x2 - dx2, y2 - dy2, z2 - dz2).uv( -u0 + w, h - u).end();
 
-            builder.pos(x3, y3, z3).tex( 0, h - u0);
-            builder.pos(0, 0, 0).tex( 0, -u0);
-            builder.pos(dx1, dy1, dz1).tex( u, -u0);
-            builder.pos(x3 + dx1, y3 + dy1, z3 + dz1).tex( u, h - u0);
+            sink.pos(x3, y3, z3).uv( 0, h - u0).end();
+            sink.pos(0, 0, 0).uv( 0, -u0).end();
+            sink.pos(dx1, dy1, dz1).uv( u, -u0).end();
+            sink.pos(x3 + dx1, y3 + dy1, z3 + dz1).uv( u, h - u0).end();
         }
     }
 
