@@ -1,10 +1,5 @@
 package io.socol.opticubes.registry;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.network.clientbound.ResetOptiCubeEditingMessage;
 import io.socol.opticubes.network.clientbound.StartOptiCubeRegionEditingMessage;
@@ -12,23 +7,28 @@ import io.socol.opticubes.network.clientbound.StartOptiCubeSettingsEditingMessag
 import io.socol.opticubes.network.serverbound.SetOptiCubeRadiusMessage;
 import io.socol.opticubes.network.serverbound.StopOptiCubeRegionEditingMessage;
 import io.socol.opticubes.network.serverbound.StopOptiCubeSettingsEditingMessage;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class OptiNetwork {
+    public static SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(OptiCubes.MODID);
+    private static int ID;
 
-    private static int lastMessageId = -1;
-
-    public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(OptiCubes.MODID);
-
-    public static void register() {
-        registerMessage(new StartOptiCubeRegionEditingMessage.Handler(), StartOptiCubeRegionEditingMessage.class, Side.CLIENT);
-        registerMessage(new ResetOptiCubeEditingMessage.Handler(), ResetOptiCubeEditingMessage.class, Side.CLIENT);
-        registerMessage(new StartOptiCubeSettingsEditingMessage.Handler(), StartOptiCubeSettingsEditingMessage.class, Side.CLIENT);
-        registerMessage(new StopOptiCubeRegionEditingMessage.Handler(), StopOptiCubeRegionEditingMessage.class, Side.SERVER);
-        registerMessage(new SetOptiCubeRadiusMessage.Handler(), SetOptiCubeRadiusMessage.class, Side.SERVER);
-        registerMessage(new StopOptiCubeSettingsEditingMessage.Handler(), StopOptiCubeSettingsEditingMessage.class, Side.SERVER);
+    static {
+        ID = 0;
     }
 
-    public static <REQ extends IMessage, REPLY extends IMessage> void registerMessage(IMessageHandler<? super REQ, ? extends REPLY> messageHandler, Class<REQ> requestMessageType, Side side) {
-        NETWORK.registerMessage(messageHandler, requestMessageType, ++lastMessageId, side);
+    private static int nextID() {
+        return ID++;
+    }
+
+    public static void register() {
+        INSTANCE.registerMessage(StartOptiCubeRegionEditingMessage.Handler.class, StartOptiCubeRegionEditingMessage.class, nextID(), Side.CLIENT);
+        INSTANCE.registerMessage(ResetOptiCubeEditingMessage.Handler.class, ResetOptiCubeEditingMessage.class, nextID(), Side.CLIENT);
+        INSTANCE.registerMessage(StartOptiCubeSettingsEditingMessage.Handler.class, StartOptiCubeSettingsEditingMessage.class, nextID(), Side.CLIENT);
+        INSTANCE.registerMessage(StopOptiCubeRegionEditingMessage.Handler.class, StopOptiCubeRegionEditingMessage.class, nextID(), Side.SERVER);
+        INSTANCE.registerMessage(SetOptiCubeRadiusMessage.Handler.class, SetOptiCubeRadiusMessage.class, nextID(), Side.SERVER);
+        INSTANCE.registerMessage(StopOptiCubeSettingsEditingMessage.Handler.class, StopOptiCubeSettingsEditingMessage.class, nextID(), Side.SERVER);
     }
 }

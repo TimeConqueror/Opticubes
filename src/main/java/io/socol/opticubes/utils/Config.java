@@ -1,4 +1,4 @@
-package timecore.api.common.config;
+package io.socol.opticubes.utils;
 
 import net.minecraftforge.common.config.Configuration;
 

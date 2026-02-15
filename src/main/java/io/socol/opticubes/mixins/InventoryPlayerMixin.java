@@ -7,13 +7,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@SuppressWarnings("UnusedMixin")
 @Mixin(InventoryPlayer.class)
 public class InventoryPlayerMixin {
 
     @Inject(method = "changeCurrentItem", at = @At(value = "HEAD"), cancellable = true)
-    public void onWheelScroll(int i, CallbackInfo ci) {
-        if (ClientOptiCubeEditingService.getInstance().onWheelScroll(i)) {
+    public void onWheelScroll(int direction, CallbackInfo ci) {
+        if (ClientOptiCubeEditingService.getInstance().onWheelScroll(direction)) {
             ci.cancel();
         }
     }

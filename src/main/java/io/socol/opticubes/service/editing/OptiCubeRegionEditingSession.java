@@ -3,12 +3,12 @@ package io.socol.opticubes.service.editing;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.ChatComponentExt;
 import io.socol.opticubes.utils.Region;
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +50,7 @@ public class OptiCubeRegionEditingSession {
             return;
         }
 
-        TileEntity tile = world.getTileEntity(optiCubePos.getX(), optiCubePos.getY(), optiCubePos.getZ());
+        TileEntity tile = world.getTileEntity(optiCubePos);
         if (tile instanceof TileEntityOptiCube) {
             if (type == OptiCubeRegionType.AFFECTED_REGION) {
                 ((TileEntityOptiCube) tile).setAffectedRegion(region.asRelative(optiCubePos));
@@ -65,14 +65,14 @@ public class OptiCubeRegionEditingSession {
     public boolean validateRegion(EntityPlayer player, Region region, boolean sendFeedback) {
         if (region.sizeX() > MAX_REGION_SIZE || region.sizeZ() > MAX_REGION_SIZE) {
             if (sendFeedback) {
-                player.addChatMessage(ChatComponentExt.withColor(new ChatComponentTranslation("chat.opticubes.region_too_big",
+                player.sendMessage(ChatComponentExt.withColor(new TextComponentTranslation("chat.opticubes.region_too_big",
                         region.sizeX(),
                         region.sizeY(),
                         region.sizeZ(),
                         MAX_REGION_SIZE,
                         256,
                         MAX_REGION_SIZE
-                ), EnumChatFormatting.RED));
+                ), TextFormatting.RED));
             }
             return false;
         }
@@ -80,7 +80,7 @@ public class OptiCubeRegionEditingSession {
         Region cubeCheckRegion = region.inflate(1).clampByWorld();
         if (!cubeCheckRegion.contains(optiCubePos)) {
             if (sendFeedback) {
-                player.addChatMessage(ChatComponentExt.withColor(new ChatComponentTranslation("chat.opticubes.owner_cube_far_away"), EnumChatFormatting.RED));
+                player.sendMessage(ChatComponentExt.withColor(new TextComponentTranslation("chat.opticubes.owner_cube_far_away"), TextFormatting.RED));
             }
             return false;
         }

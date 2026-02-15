@@ -2,14 +2,14 @@ package io.socol.opticubes.tiles;
 
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.OptiFeature;
-import io.socol.opticubes.utils.Mappings;
 import io.socol.opticubes.utils.NBTUtils;
 import io.socol.opticubes.utils.Region;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import org.jetbrains.annotations.Nullable;
 
 public class TileEntityOptiCube extends TileEntity {
 
@@ -26,9 +26,10 @@ public class TileEntityOptiCube extends TileEntity {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound compound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
         writeCommon(compound);
+        return compound;
     }
 
     private void writeCommon(NBTTagCompound compound) {
@@ -44,25 +45,25 @@ public class TileEntityOptiCube extends TileEntity {
     }
 
     @Override
-    public Packet getDescriptionPacket() {
+    public @Nullable SPacketUpdateTileEntity getUpdatePacket() {
         NBTTagCompound compound = new NBTTagCompound();
         writeCommon(compound);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, -1, compound);
+        return new SPacketUpdateTileEntity(pos, -1, compound);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-        if (Mappings.getNbtCompound(pkt) != null) {
-            readCommon(Mappings.getNbtCompound(pkt));
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+        if (pkt.getNbtCompound() != null) {
+            readCommon(pkt.getNbtCompound());
         }
-        if (worldObj != null && worldObj.isRemote) {
+        if (world != null && world.isRemote) {
             OptiCubes.getOptiClientService().addOptiCube(this);
         }
     }
 
     @Override
     public void onChunkUnload() {
-        if (worldObj != null && worldObj.isRemote) {
+        if (world != null && world.isRemote) {
             OptiCubes.getOptiClientService().removeOptiCube(this);
         }
     }
@@ -70,7 +71,7 @@ public class TileEntityOptiCube extends TileEntity {
     @Override
     public void invalidate() {
         super.invalidate();
-        if (worldObj != null && worldObj.isRemote) {
+        if (world != null && world.isRemote) {
             OptiCubes.getOptiClientService().removeOptiCube(this);
         }
     }
@@ -103,9 +104,10 @@ public class TileEntityOptiCube extends TileEntity {
     }
 
     private void updateData() {
-        if (worldObj != null && !worldObj.isRemote) {
+        if (world != null && !world.isRemote) {
             this.markDirty();
-            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+            IBlockState state = world.getBlockState(pos);
+            world.notifyBlockUpdate(pos, state, state, 3);
         }
     }
 }

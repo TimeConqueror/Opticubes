@@ -4,76 +4,81 @@ import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class ItemOptiWrench extends Item {
 
     public ItemOptiWrench() {
-        setTextureName(OptiCubes.MODID + ":optiwrench");
         setFull3D();
         setMaxStackSize(1);
     }
 
     @Override
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
+    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand) {
         if (player.isSneaking()) {
             if (world.isRemote && ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
                 ClientOptiCubeEditingService.getInstance().stopRegionEditingSession(null);
-                return true;
+                return EnumActionResult.SUCCESS;
             }
-            if (!world.isRemote && world.getBlock(x, y, z) == OptiBlocks.OPTICUBE) {
-                OptiCubes.getEditingService().startRegionEditingSession((EntityPlayerMP) player, new BlockPos(x, y, z), OptiCubeRegionType.AFFECTED_REGION);
-                return true;
+            if (!world.isRemote && world.getBlockState(pos).getBlock() == OptiBlocks.OPTICUBE) {
+                OptiCubes.getEditingService().startRegionEditingSession((EntityPlayerMP) player, pos, OptiCubeRegionType.AFFECTED_REGION);
+                return EnumActionResult.SUCCESS;
             }
         } else {
             if (world.isRemote && ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
-                ClientOptiCubeEditingService.getInstance().addRegionPoint(new BlockPos(x, y, z));
-                return true;
+                ClientOptiCubeEditingService.getInstance().addRegionPoint(pos);
+                return EnumActionResult.SUCCESS;
             }
         }
-        return false;
+        return EnumActionResult.FAIL;
     }
 
     @Override
-    public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
-        if (world.isRemote && ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
-            MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
-            if (hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.MISS) {
+    public ActionResult<ItemStack> onItemRightClick(World level, EntityPlayer player, EnumHand hand) {
+        if (level.isRemote && ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
+            RayTraceResult hitResult = Minecraft.getMinecraft().objectMouseOver;
+            if (hitResult != null && hitResult.typeOfHit == RayTraceResult.Type.MISS) {
                 if (player.isSneaking()) {
                     ClientOptiCubeEditingService.getInstance().stopRegionEditingSession(null);
                 } else {
-                    ClientOptiCubeEditingService.getInstance().addRegionPoint(new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ));
+                    ClientOptiCubeEditingService.getInstance().addRegionPoint(hitResult.getBlockPos());
                 }
             }
         }
-        return super.onItemRightClick(itemStack, world, player);
+        return super.onItemRightClick(level, player, hand);
     }
 
     @Override
-    public boolean onBlockStartBreak(ItemStack itemstack, int x, int y, int z, EntityPlayer player) {
+    public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player) {
         // works in creative gamemode only
         if (!player.isSneaking()) {
-            return super.onBlockStartBreak(itemstack, x, y, z, player);
+            return super.onBlockStartBreak(itemstack, pos, player);
         }
-        World world = player.worldObj;
-        if (world.getBlock(x, y, z) != OptiBlocks.OPTICUBE) {
-            return super.onBlockStartBreak(itemstack, x, y, z, player);
+        World world = player.world;
+        if (world.getBlockState(pos).getBlock() != OptiBlocks.OPTICUBE) {
+            return super.onBlockStartBreak(itemstack, pos, player);
         }
-        if (!player.worldObj.isRemote) {
+        if (!player.world.isRemote) {
             OptiCubes.getEditingService().startSettingsEditingSession(
-                (EntityPlayerMP) player,
-                new BlockPos(x, y, z)
+                    (EntityPlayerMP) player,
+                    pos
             );
         }
         return true;
@@ -81,13 +86,11 @@ public class ItemOptiWrench extends Item {
 
     @Override
     public EnumRarity getRarity(ItemStack stack) {
-        return EnumRarity.rare;
+        return EnumRarity.RARE;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void addInformation(ItemStack stack, EntityPlayer player, List target, boolean advancedTooltips) {
-        List<String> tooltip = (List<String>) target;
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         tooltip.add(I18n.format("item.opticubes.optiwrench.usage.held"));
         tooltip.add(I18n.format("item.opticubes.optiwrench.usage.start_region_editing"));
         tooltip.add(I18n.format("item.opticubes.optiwrench.usage.stop_region_editing"));

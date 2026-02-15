@@ -1,10 +1,21 @@
 {
-  "required": true,
-  "minVersion": "0.7.11",
-  "package": "io.socol.opticubes.mixins",
-  "plugin": "io.socol.opticubes.mixinplugin.MixinPlugin",
-  "refmap": "mixins.opticubes.refmap.json",
-  "target": "@env(DEFAULT)",
-  "compatibilityLevel": "JAVA_8"
+    "package": "io.socol.opticubes.mixins",
+	"required": true,
+	"refmap": "mixins.opticubes.refmap.json",
+	"target": "@env(DEFAULT)",
+	"minVersion": "0.8.5",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [],
+	"server": [],
+  "client": [
+    "BlockRendererDispatcherMixin",
+    "InventoryPlayerMixin",
+    "ParticleManagerMixin",
+    "RenderGlobalMixin",
+    "RenderManagerMixin",
+    "TileEntityRendererDispatcherMixin",
+    "access.RenderGlobalExt",
+    "access.RenderManagerExt",
+    "access.ParticleExt"
+  ]
 }
-

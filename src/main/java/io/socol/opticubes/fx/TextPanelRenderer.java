@@ -2,20 +2,23 @@ package io.socol.opticubes.fx;
 
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.utils.TessellatorUtils;
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
 public class TextPanelRenderer {
 
     private static final ResourceLocation FRAME_TEXTURE = new ResourceLocation(OptiCubes.MODID, "textures/entity/frame.png");
 
-    public static void renderText(BlockPos pos, String text, int side, boolean animate, int time, float partialTicks) {
+    public static void renderText(BlockPos pos, String text, EnumFacing side, boolean animate, int time, float partialTicks) {
         FontRenderer font = TileEntityRendererDispatcher.instance.getFontRenderer();
         if (font == null) {
             return;
@@ -27,14 +30,15 @@ public class TextPanelRenderer {
 
         GL11.glTranslated(pos.getX() - TileEntityRendererDispatcher.staticPlayerX + 0.5, pos.getY() - TileEntityRendererDispatcher.staticPlayerY + 0.5, pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ + 0.5);
 
-        if (side > 1) {
-            GL11.glRotated((side > 3 ? 270 : 180) + side * 180, 0, 1, 0);
+        int sideIndex = side.getIndex();
+        if (sideIndex > 1) {
+            GL11.glRotated((sideIndex > 3 ? 270 : 180) + sideIndex * 180, 0, 1, 0);
             GL11.glTranslated(0.025, 60 / 16f * scale, 0.52);
         } else {
-            float yaw = Minecraft.getMinecraft().thePlayer.rotationYaw;
+            float yaw = Minecraft.getMinecraft().player.rotationYaw;
             int angle = (int) (yaw < 0 ? ((yaw - 45) / 90) : ((yaw + 45) / 90));
             GL11.glRotated(180 - angle * 90, 0, 1, 0);
-            if (side == 1) {
+            if (sideIndex == 1) {
                 GL11.glTranslated(0.025, 0.52, -60 / 16f * scale);
                 GL11.glRotated(-90, 1, 0, 0);
             } else {
@@ -60,16 +64,17 @@ public class TextPanelRenderer {
             int color = i == 0 ? 0xFFFFFFFF : 0xFF808080;
 
             GL11.glScaled(frameScale, frameScale, 1.0);
-            Tessellator tessellator = Tessellator.instance;
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder builder = tessellator.getBuffer();
             Minecraft.getMinecraft().getTextureManager().bindTexture(FRAME_TEXTURE);
             float dx = -12.5f;
             float dy = -8f;
-            tessellator.startDrawingQuads();
+            builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
             TessellatorUtils.setColor(color);
-            tessellator.addVertexWithUV(dx, dy, 0, 0, 0);
-            tessellator.addVertexWithUV(dx, size + dy, 0, 1, 0);
-            tessellator.addVertexWithUV(size + dx, size + dy, 0, 1, 1);
-            tessellator.addVertexWithUV(size + dx, dy, 0, 0, 1);
+            builder.pos(dx, dy, 0).tex(0, 0);
+            builder.pos(dx, size + dy, 0).tex( 1, 0);
+            builder.pos(size + dx, size + dy, 0).tex( 1, 1);
+            builder.pos(size + dx, dy, 0).tex( 0, 1);
             tessellator.draw();
             GL11.glScaled(1 / frameScale, 1 / frameScale, 1.0);
 

@@ -1,24 +1,25 @@
 package io.socol.opticubes.service.opti;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
 import io.socol.opticubes.OCConfigs;
 import io.socol.opticubes.OptiFeature;
+import io.socol.opticubes.mixins.access.RenderGlobalExt;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
-import io.socol.opticubes.utils.Mappings;
-import io.socol.opticubes.utils.pos.BlockPos;
-import net.minecraft.block.Block;
+import io.socol.opticubes.utils.BlockPosExt;
+import io.socol.opticubes.utils.ClientMixinAccessor;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -30,12 +31,12 @@ public class OptiClientService {
     private final OptiRegionMap regionMap = new OptiRegionMap();
 
     public OptiClientService() {
-        FMLCommonHandler.instance().bus().register(new ForgeListener());
+        MinecraftForge.EVENT_BUS.register(new ForgeListener());
         MinecraftForge.EVENT_BUS.register(new EventListener());
     }
 
     public void addOptiCube(TileEntityOptiCube tile) {
-        BlockPos optiCubePos = BlockPos.of(tile);
+        BlockPos optiCubePos = tile.getPos();
         OptiCube prevOptiCube = removeOptiCubeInternal(optiCubePos);
 
         OptiCube optiCube = new OptiCube(
@@ -52,7 +53,7 @@ public class OptiClientService {
     }
 
     public void removeOptiCube(TileEntityOptiCube tile) {
-        OptiCube prevOptiCube = removeOptiCubeInternal(BlockPos.of(tile));
+        OptiCube prevOptiCube = removeOptiCubeInternal(tile.getPos());
         onOptiCubeUpdate(prevOptiCube, null);
     }
 
@@ -114,7 +115,8 @@ public class OptiClientService {
         }
 
         for (BlockPos pos : blocksToUpdate) {
-            Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
+            RenderGlobalExt renderGlobal = ClientMixinAccessor.get(Minecraft.getMinecraft().renderGlobal);
+            renderGlobal.callMarkBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ(), true);
         }
     }
 
@@ -128,15 +130,16 @@ public class OptiClientService {
             return false;
         }
 
+        //FIXME migrate to resourcelocation?
         if (OCConfigs.skipOptiForTile(tile.getClass())) {
             return false;
         }
 
-        return regionMap.contains(BlockPos.of(tile), OptiFeature.HIDE_TILES);
+        return regionMap.contains(tile.getPos(), OptiFeature.HIDE_TILES);
     }
 
-    public boolean skipParticleSpawn(EntityFX particle) {
-        return skipParticleSpawn(BlockPos.of(particle));
+    public boolean skipParticleSpawn(Particle particle) {
+        return skipParticleSpawn(BlockPosExt.of(particle));
     }
 
     public boolean skipParticleSpawn(BlockPos particlePos) {
@@ -148,19 +151,28 @@ public class OptiClientService {
             return false;
         }
         if (entity instanceof EntityItem) {
-            return regionMap.contains(BlockPos.of(entity), OptiFeature.HIDE_DROPPED_ITEMS);
+            return regionMap.contains(BlockPosExt.of(entity), OptiFeature.HIDE_DROPPED_ITEMS);
         }
-        return regionMap.contains(BlockPos.of(entity), OptiFeature.HIDE_ENTITIES);
+        return regionMap.contains(BlockPosExt.of(entity), OptiFeature.HIDE_ENTITIES);
     }
 
-    public boolean skipSpecialBlockRender(Block block, BlockPos pos) {
-        return (!Mappings.isFullBlock(block) || !block.isOpaqueCube()) && regionMap.contains(pos, OptiFeature.HIDE_SPECIAL_BLOCKS);
+    public boolean skipSpecialBlockRender(IBlockState state, BlockPos pos) {
+        if(state.isFullBlock()) {
+            return false;
+        }
+
+        if(state.isOpaqueCube()) {
+            return false;
+        }
+
+        return regionMap.contains(pos, OptiFeature.HIDE_SPECIAL_BLOCKS);
     }
 
+    //fixme check
     public class ForgeListener {
         @SubscribeEvent
         public void onTick(TickEvent.ClientTickEvent event) {
-            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
             if (player == null || event.phase != TickEvent.Phase.END) {
                 return;
             }
@@ -179,8 +191,10 @@ public class OptiClientService {
                 }
             }
 
+            //FIXME if we should really set markBlocksForUpdate every tick?
             for (BlockPos pos : blocksToUpdate) {
-                Minecraft.getMinecraft().renderGlobal.markBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
+                RenderGlobalExt renderGlobal = ClientMixinAccessor.get(Minecraft.getMinecraft().renderGlobal);
+                renderGlobal.callMarkBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ(), true);
             }
         }
 
@@ -199,10 +213,11 @@ public class OptiClientService {
         return optiCubes;
     }
 
+    //FIXME check
     public class EventListener {
         @SubscribeEvent
         public void onRender(RenderWorldLastEvent event) {
-            OptiServiceRenderer.render(OptiClientService.this, event.partialTicks);
+            OptiServiceRenderer.render(OptiClientService.this, event.getPartialTicks());
         }
     }
 

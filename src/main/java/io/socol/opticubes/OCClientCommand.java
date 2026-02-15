@@ -1,29 +1,40 @@
 package io.socol.opticubes;
 
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.IClientCommand;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class OCClientCommand extends CommandBase {
+public class OCClientCommand extends CommandBase implements IClientCommand {
     private static final String PREFIX = "opticubes.command";
     private static final String USAGE = ".usage";
 
     @Override
-    public String getCommandName() {
+    public boolean allowUsageWithoutPrefix(ICommandSender sender, String message) {
+        return false;
+    }
+
+    @Override
+    public String getName() {
         return "opticubes";
     }
 
     @Override
-    public String getCommandUsage(ICommandSender pCommandSender) {
+    public String getUsage(ICommandSender sender) {
         return PREFIX + USAGE;
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] args) {
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         if (args.length < 1) {
             throw new WrongUsageException(PREFIX + USAGE);
         }
@@ -32,10 +43,10 @@ public class OCClientCommand extends CommandBase {
 
         if (subCommand.equals("reloadconfigs")) {
             OCConfigs.load();
-            sender.addChatMessage(new ChatComponentTranslation(SubCommand.RELOAD_CONFIGS.prefix("success")));
+            sender.sendMessage(new TextComponentTranslation(SubCommand.RELOAD_CONFIGS.prefix("success")));
         } else if (subCommand.equals("help")) {
             for (String command : SubCommand.COMMANDS) {
-                sender.addChatMessage(new ChatComponentTranslation(PREFIX + "." + command + USAGE, "/" + getCommandName() + " " + command));
+                sender.sendMessage(new TextComponentTranslation(PREFIX + "." + command + USAGE, "/" + getName() + " " + command));
             }
         }
     }
@@ -46,12 +57,12 @@ public class OCClientCommand extends CommandBase {
     }
 
     @Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args) {
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
         if (args.length == 1) {
             return getListOfStringsMatchingLastWord(args, SubCommand.COMMANDS);
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
     public static List<String> getListOfStringsMatchingLastWord(String[] args, String... possibilities) {

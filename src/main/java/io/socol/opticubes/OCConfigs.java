@@ -2,7 +2,7 @@ package io.socol.opticubes;
 
 import net.minecraft.tileentity.TileEntity;
 import org.apache.commons.lang3.ArrayUtils;
-import timecore.api.common.config.Config;
+import io.socol.opticubes.utils.Config;
 
 import java.util.HashSet;
 

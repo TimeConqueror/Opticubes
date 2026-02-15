@@ -3,11 +3,12 @@ package io.socol.opticubes.service.opti;
 import io.socol.opticubes.OptiFeature;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
+import io.socol.opticubes.utils.BlockPosExt;
 import io.socol.opticubes.utils.Region;
-import io.socol.opticubes.utils.pos.BlockPos;
-import io.socol.opticubes.utils.pos.ChunkPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,7 +107,7 @@ public class OptiCube {
             for (int cy = region.y0 >> 4; cy <= cy1; cy++) {
                 int blockY = (cy << 4) + 8;
                 for (ChunkPos chunkPos : affectedChunks) {
-                    affectedMicroChunks.add(new BlockPos(chunkPos.centerX(), blockY, chunkPos.centerZ()));
+                    affectedMicroChunks.add(new BlockPos(BlockPosExt.chunkCenterX(chunkPos), blockY, BlockPosExt.chunkCenterZ(chunkPos)));
                 }
             }
         }
@@ -121,7 +122,7 @@ public class OptiCube {
     }
 
     public boolean checkEnabled() {
-        EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayer player = Minecraft.getMinecraft().player;
         return checkEnabled(player.getEntityWorld(), player.posX, player.posY + player.getEyeHeight(), player.posZ);
     }
 

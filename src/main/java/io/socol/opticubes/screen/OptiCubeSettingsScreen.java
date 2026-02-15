@@ -74,7 +74,7 @@ public class OptiCubeSettingsScreen extends GuiScreen {
         for (GuiButton guiButton : buttonList) {
             if (guiButton instanceof OptiCubeFeatureToggleButton) {
                 OptiCubeFeatureToggleButton toggleButton = (OptiCubeFeatureToggleButton) guiButton;
-                if (toggleButton.func_146115_a()) {
+                if (toggleButton.isMouseOver()) {
                     return toggleButton.getFeature();
                 }
             }

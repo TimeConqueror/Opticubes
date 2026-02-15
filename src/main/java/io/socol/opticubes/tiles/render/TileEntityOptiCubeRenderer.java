@@ -1,23 +1,18 @@
 package io.socol.opticubes.tiles.render;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class TileEntityOptiCubeRenderer extends TileEntitySpecialRenderer {
+public class TileEntityOptiCubeRenderer extends TileEntitySpecialRenderer<TileEntityOptiCube> {
 
     @Override
-    public void renderTileEntityAt(TileEntity tile, double x, double y, double z, float partialTicks) {
-        TileEntityOptiCube optiCube = (TileEntityOptiCube) tile;
-        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+    public void render(TileEntityOptiCube optiCube, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
 
 
 //        GL11.glTranslated(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);

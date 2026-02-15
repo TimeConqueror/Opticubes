@@ -3,8 +3,8 @@ package io.socol.opticubes.service.editing;
 import io.socol.opticubes.network.serverbound.SetOptiCubeRadiusMessage;
 import io.socol.opticubes.registry.OptiNetwork;
 import io.socol.opticubes.service.opti.OptiCube;
-import io.socol.opticubes.utils.pos.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 
 public class OptiCubeRadiusEditingSession {
 
@@ -34,13 +34,13 @@ public class OptiCubeRadiusEditingSession {
     }
 
     public void modifyRadius(int delta) {
-        radius = MathHelper.clamp_int(radius + delta, OptiCube.MIN_RADIUS, OptiCube.MAX_RADIUS);
+        radius = MathHelper.clamp(radius + delta, OptiCube.MIN_RADIUS, OptiCube.MAX_RADIUS);
     }
 
     public void commit() {
         if (radius != lastSyncRadius) {
             lastSyncRadius = radius;
-            OptiNetwork.NETWORK.sendToServer(new SetOptiCubeRadiusMessage(optiCubePos, radius));
+            OptiNetwork.INSTANCE.sendToServer(new SetOptiCubeRadiusMessage(optiCubePos, radius));
         }
     }
 

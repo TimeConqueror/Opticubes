@@ -1,5 +1,0 @@
-// Add your dependencies here
-
-dependencies {
-    compile("org.jetbrains:annotations:18.0.0")
-}

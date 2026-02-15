@@ -1,8 +1,5 @@
 package io.socol.opticubes.service.editing;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 import io.socol.opticubes.network.clientbound.ResetOptiCubeEditingMessage;
 import io.socol.opticubes.network.clientbound.StartOptiCubeRegionEditingMessage;
 import io.socol.opticubes.network.clientbound.StartOptiCubeSettingsEditingMessage;
@@ -10,11 +7,14 @@ import io.socol.opticubes.registry.OptiNetwork;
 import io.socol.opticubes.service.opti.OptiCube;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
 import io.socol.opticubes.utils.Region;
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -27,16 +27,16 @@ public class OptiCubeEditingService {
     private final Map<UUID, OptiCubeSettingsEditingSession> settingsEditingSessions = new HashMap<>();
 
     public OptiCubeEditingService() {
-        FMLCommonHandler.instance().bus().register(new ForgeListener());
+        MinecraftForge.EVENT_BUS.register(new ForgeListener());
     }
 
     public void startRegionEditingSession(EntityPlayerMP player, BlockPos opiCubePos, OptiCubeRegionType type) {
         regionEditingSessions.put(player.getUniqueID(), new OptiCubeRegionEditingSession(
-            opiCubePos,
-            type,
-            player.getServerForPlayer().getTotalWorldTime()
+                opiCubePos,
+                type,
+                player.getServerWorld().getTotalWorldTime()
         ));
-        OptiNetwork.NETWORK.sendTo(new StartOptiCubeRegionEditingMessage(opiCubePos, type), player);
+        OptiNetwork.INSTANCE.sendTo(new StartOptiCubeRegionEditingMessage(opiCubePos, type), player);
     }
 
     public void stopRegionEditingSession(EntityPlayerMP player, @Nullable Region region) {
@@ -51,8 +51,8 @@ public class OptiCubeEditingService {
     }
 
     public void setOptiCubeRadius(EntityPlayerMP player, BlockPos optiCubePos, int radius) {
-        radius = MathHelper.clamp_int(radius, OptiCube.MIN_RADIUS, OptiCube.MAX_RADIUS);
-        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos.getX(), optiCubePos.getY(), optiCubePos.getZ());
+        radius = MathHelper.clamp(radius, OptiCube.MIN_RADIUS, OptiCube.MAX_RADIUS);
+        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos);
         if (tile instanceof TileEntityOptiCube) {
             ((TileEntityOptiCube) tile).setRadius(radius);
         }
@@ -63,7 +63,7 @@ public class OptiCubeEditingService {
         if (session == null || !session.getOptiCubePos().equals(optiCubePos)) {
             return;
         }
-        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos.getX(), optiCubePos.getY(), optiCubePos.getZ());
+        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos);
         if (tile instanceof TileEntityOptiCube) {
             ((TileEntityOptiCube) tile).setFeaturesMask(featuresMask);
         }
@@ -71,20 +71,20 @@ public class OptiCubeEditingService {
     }
 
     public void startSettingsEditingSession(EntityPlayerMP player, BlockPos optiCubePos) {
-        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos.getX(), optiCubePos.getY(), optiCubePos.getZ());
+        TileEntity tile = player.getEntityWorld().getTileEntity(optiCubePos);
         if (tile instanceof TileEntityOptiCube) {
             TileEntityOptiCube optiCube = (TileEntityOptiCube) tile;
             settingsEditingSessions.put(player.getUniqueID(), new OptiCubeSettingsEditingSession(
-                optiCubePos,
-                player.getServerForPlayer().getTotalWorldTime(),
-                optiCube.getFeaturesMask()
-            ));
-            OptiNetwork.NETWORK.sendTo(
-                new StartOptiCubeSettingsEditingMessage(
                     optiCubePos,
+                    player.getServerWorld().getTotalWorldTime(),
                     optiCube.getFeaturesMask()
-                ),
-                player
+            ));
+            OptiNetwork.INSTANCE.sendTo(
+                    new StartOptiCubeSettingsEditingMessage(
+                            optiCubePos,
+                            optiCube.getFeaturesMask()
+                    ),
+                    player
             );
         }
 
@@ -100,11 +100,12 @@ public class OptiCubeEditingService {
         settingsEditingSessions.clear();
     }
 
+    //FIXME check if works
     public class ForgeListener {
         @SubscribeEvent
         public void onPlayerChangeWorld(PlayerEvent.PlayerChangedDimensionEvent event) {
             resetPlayer(event.player);
-            OptiNetwork.NETWORK.sendTo(new ResetOptiCubeEditingMessage(), (EntityPlayerMP) event.player);
+            OptiNetwork.INSTANCE.sendTo(new ResetOptiCubeEditingMessage(), (EntityPlayerMP) event.player);
         }
 
         @SubscribeEvent

@@ -1,23 +1,22 @@
 package io.socol.opticubes;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.relauncher.Side;
 import io.socol.opticubes.proxy.CommonProxy;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeEditingService;
 import io.socol.opticubes.service.opti.OptiClientService;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
-import timecore.api.common.config.Config;
+import io.socol.opticubes.utils.Config;
 
-@Mod(modid = OptiCubes.MODID, version = OptiCubes.VERSION, dependencies = "required-after:spongemixins@[1.1.0,);")
+@Mod(modid = OptiCubes.MODID, version = OptiCubes.VERSION)
 public class OptiCubes {
     public static final String MODID = "opticubes";
     public static final String VERSION = "GRADLETOKEN_VERSION";
@@ -38,19 +37,19 @@ public class OptiCubes {
         }
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         proxy.preInit(event);
         Config.setConfigDir(event.getModConfigurationDirectory());
         OCConfigs.load();
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
     }
@@ -61,5 +60,9 @@ public class OptiCubes {
 
     public static OptiCubeEditingService getEditingService() {
         return editingService;
+    }
+
+    public static ResourceLocation rl(String path) {
+        return new ResourceLocation(MODID, path);
     }
 }

@@ -29,23 +29,24 @@ public class OptiCubeFeatureToggleButton extends GuiButton {
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
-        if (!this.visible) {
-            return;
-        }
-        mc.getTextureManager().bindTexture(TEXTURE);
-        this.field_146123_n = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
-        boolean hovered = field_146123_n;
-        boolean featureEnabled = session.isFeatureEnabled(feature);
-        int tx = hovered ? 20 : 0;
-        int ty = 46 + (featureEnabled ? 22 : 0);
-        this.drawTexturedModalRect(this.xPosition, this.yPosition, tx, ty, this.width, this.height);
-        this.drawTexturedModalRect(
-            this.xPosition + 2,
-            this.yPosition + 2 + (featureEnabled ? 1 : 0),
-            feature.ordinal()  * 16, 90,
-            16, 16
-        );
+    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        //FIXME check
+//        if (!this.visible) {
+//            return;
+//        }
+//        mc.getTextureManager().bindTexture(TEXTURE);
+//        this.field_146123_n = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+//        boolean hovered = field_146123_n;
+//        boolean featureEnabled = session.isFeatureEnabled(feature);
+//        int tx = hovered ? 20 : 0;
+//        int ty = 46 + (featureEnabled ? 22 : 0);
+//        this.drawTexturedModalRect(this.xPosition, this.yPosition, tx, ty, this.width, this.height);
+//        this.drawTexturedModalRect(
+//                this.xPosition + 2,
+//                this.yPosition + 2 + (featureEnabled ? 1 : 0),
+//                feature.ordinal()  * 16, 90,
+//                16, 16
+//        );
     }
 
     public void onClick() {

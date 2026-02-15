@@ -1,13 +1,13 @@
 package io.socol.opticubes.network.serverbound;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.utils.ProtoUtils;
 import io.socol.opticubes.utils.Region;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +46,7 @@ public class StopOptiCubeRegionEditingMessage implements IMessage {
 
         @Override
         public IMessage onMessage(StopOptiCubeRegionEditingMessage message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            EntityPlayerMP player = ctx.getServerHandler().player;
             OptiCubes.getEditingService().stopRegionEditingSession(player, message.region);
             return null;
         }

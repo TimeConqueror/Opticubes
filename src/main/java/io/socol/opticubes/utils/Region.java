@@ -1,10 +1,10 @@
 package io.socol.opticubes.utils;
 
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.renderer.culling.ClippingHelperImpl;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -94,12 +94,12 @@ public class Region {
 
     public Region clampByWorld() {
         return new Region(
-                MathHelper.clamp_int(x0, MIN_WORLD_COORD, MAX_WORLD_COORD),
-                MathHelper.clamp_int(y0, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT),
-                MathHelper.clamp_int(z0, MIN_WORLD_COORD, MAX_WORLD_COORD),
-                MathHelper.clamp_int(x1, MIN_WORLD_COORD, MAX_WORLD_COORD),
-                MathHelper.clamp_int(y1, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT),
-                MathHelper.clamp_int(z1, MIN_WORLD_COORD, MAX_WORLD_COORD)
+                MathHelper.clamp(x0, MIN_WORLD_COORD, MAX_WORLD_COORD),
+                MathHelper.clamp(y0, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT),
+                MathHelper.clamp(z0, MIN_WORLD_COORD, MAX_WORLD_COORD),
+                MathHelper.clamp(x1, MIN_WORLD_COORD, MAX_WORLD_COORD),
+                MathHelper.clamp(y1, MIN_WORLD_HEIGHT, MAX_WORLD_HEIGHT),
+                MathHelper.clamp(z1, MIN_WORLD_COORD, MAX_WORLD_COORD)
         );
     }
 
@@ -143,8 +143,8 @@ public class Region {
         return Math.sqrt(sizeX() * sizeX() + sizeY() * sizeY() + sizeZ() * sizeZ());
     }
 
-    public Vec3 getCenter() {
-        return Vec3.createVectorHelper(centerX(), centerY(), centerZ());
+    public Vec3d getCenter() {
+        return new Vec3d(centerX(), centerY(), centerZ());
     }
 
     public boolean intersects(double x, double y, double z, double radius) {
@@ -163,17 +163,6 @@ public class Region {
 
     public Region inflate(int factor) {
         return new Region(x0 - factor, y0 - factor, z0 - factor, x1 + factor, y1 + factor, z1 + factor);
-    }
-
-    public boolean isInFrustum() {
-        return ClippingHelperImpl.getInstance().isBoxInFrustum(
-                x0 - RenderManager.renderPosX,
-                y0 - RenderManager.renderPosY,
-                z0 - RenderManager.renderPosZ,
-                x1 - RenderManager.renderPosX,
-                y1 - RenderManager.renderPosY,
-                z1 - RenderManager.renderPosZ
-        );
     }
 
     @Override

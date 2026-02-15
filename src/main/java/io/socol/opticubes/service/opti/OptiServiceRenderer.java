@@ -2,23 +2,31 @@ package io.socol.opticubes.service.opti;
 
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.items.ItemOptiWrench;
+import io.socol.opticubes.mixins.access.RenderManagerExt;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
+import io.socol.opticubes.utils.ClientMixinAccessor;
 import io.socol.opticubes.utils.ColorUtils;
 import io.socol.opticubes.utils.Region;
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.culling.ClippingHelperImpl;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 
 public class OptiServiceRenderer {
 
     public static void render(OptiClientService service, float partialTicks) {
-        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+        Minecraft mc = Minecraft.getMinecraft();
+        RenderManager renderManager = mc.getRenderManager();
+        EntityPlayerSP player = mc.player;
+
         if (player == null) {
             return;
         }
 
-        ItemStack held = player.getHeldItem();
+        ItemStack held = player.getHeldItem(EnumHand.MAIN_HAND);
         if (!ItemOptiWrench.isOptiWrench(held)) {
             return;
         }
@@ -27,7 +35,7 @@ public class OptiServiceRenderer {
 
         if (!ClientOptiCubeEditingService.getInstance().isEditingRegion()) {
             for (OptiCube optiCube : service.getOptiCubes().values()) {
-                if (!optiCube.getRegion().isInFrustum()) {
+                if(!isInFrustum(renderManager, optiCube.getRegion())) {
                     continue;
                 }
 
@@ -46,5 +54,18 @@ public class OptiServiceRenderer {
                 }
             }
         }
+    }
+
+    private static boolean isInFrustum(RenderManager manager, Region region) {
+        RenderManagerExt ext = ClientMixinAccessor.get(manager);
+
+        return ClippingHelperImpl.getInstance().isBoxInFrustum(
+                region.x0 - ext.getRenderPosX(),
+                region.y0 - ext.getRenderPosY(),
+                region.z0 - ext.getRenderPosZ(),
+                region.x1 - ext.getRenderPosX(),
+                region.y1 - ext.getRenderPosY(),
+                region.z1 - ext.getRenderPosZ()
+        );
     }
 }

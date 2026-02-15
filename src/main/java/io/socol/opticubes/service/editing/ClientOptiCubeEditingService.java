@@ -1,9 +1,5 @@
 package io.socol.opticubes.service.editing;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.fx.TextPanelRenderer;
@@ -16,15 +12,19 @@ import io.socol.opticubes.registry.OptiNetwork;
 import io.socol.opticubes.screen.OptiCubeSettingsScreen;
 import io.socol.opticubes.service.opti.OptiCube;
 import io.socol.opticubes.utils.Region;
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class ClientOptiCubeEditingService extends OptiCubeEditingService {
@@ -36,7 +36,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
     private BlockPos radiusEditingOptiCube = null;
 
     public ClientOptiCubeEditingService() {
-        FMLCommonHandler.instance().bus().register(new ForgeListener());
+        MinecraftForge.EVENT_BUS.register(new ForgeListener());
         MinecraftForge.EVENT_BUS.register(new EventListener());
     }
 
@@ -52,7 +52,7 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
     public void stopRegionEditingSession(@Nullable Region region) {
         currentRegionEditingSession = null;
         firstRegionPoint = null;
-        OptiNetwork.NETWORK.sendToServer(new StopOptiCubeRegionEditingMessage(region));
+        OptiNetwork.INSTANCE.sendToServer(new StopOptiCubeRegionEditingMessage(region));
     }
 
     public boolean isEditingRegion(World world, BlockPos optiCubePos, OptiCubeRegionType regionType) {
@@ -95,25 +95,25 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         return currentRadiusEditingSession;
     }
 
-    private OptiCube checkRadiusEditingSession(EntityClientPlayerMP player) {
-        ItemStack held = player.getHeldItem();
+    private OptiCube checkRadiusEditingSession(EntityPlayerSP player) {
+        ItemStack held = player.getHeldItem(EnumHand.MAIN_HAND);
         if (!ItemOptiWrench.isOptiWrench(held)) {
             return null;
         }
         World world = player.getEntityWorld();
 
-        MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
-        boolean isBlockSelected = hitResult != null && hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK;
+        RayTraceResult hitResult = Minecraft.getMinecraft().objectMouseOver;
+        boolean isBlockSelected = hitResult != null && hitResult.typeOfHit == RayTraceResult.Type.BLOCK;
 
-        if (isBlockSelected && world.getBlock(hitResult.blockX, hitResult.blockY, hitResult.blockZ) == OptiBlocks.OPTICUBE) {
-            BlockPos blockPos = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
+        if (isBlockSelected && world.getBlockState(hitResult.getBlockPos()).getBlock() == OptiBlocks.OPTICUBE) {
+            BlockPos blockPos = new BlockPos(hitResult.getBlockPos());
             return OptiCubes.getOptiClientService().getOptiCube(blockPos);
         }
         return null;
     }
 
     public boolean onWheelScroll(int i) {
-        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (player == null) {
             return false;
         }
@@ -153,13 +153,14 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
     }
 
     public void stopSettingsEditingSession(BlockPos optiCubePos, long featuresMask) {
-        OptiNetwork.NETWORK.sendToServer(new StopOptiCubeSettingsEditingMessage(optiCubePos, featuresMask));
+        OptiNetwork.INSTANCE.sendToServer(new StopOptiCubeSettingsEditingMessage(optiCubePos, featuresMask));
     }
 
+    //fixme check
     public class ForgeListener {
         @SubscribeEvent
         public void onTick(TickEvent.ClientTickEvent event) {
-            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
             if (player == null || event.phase != TickEvent.Phase.END) {
                 return;
             }
@@ -191,22 +192,23 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         return radiusEditingOptiCube;
     }
 
+    //fixme check
     public class EventListener {
         @SubscribeEvent
         public void onRender(RenderWorldLastEvent event) {
             radiusEditingOptiCube = null;
-            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
             if (player == null) {
                 return;
             }
 
-            ItemStack held = player.getHeldItem();
+            ItemStack held = player.getHeldItem(EnumHand.MAIN_HAND);
             if (!ItemOptiWrench.isOptiWrench(held)) {
                 return;
             }
 
-            MovingObjectPosition hitResult = Minecraft.getMinecraft().objectMouseOver;
-            boolean isBlockSelected = hitResult != null && (hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || hitResult.typeOfHit == MovingObjectPosition.MovingObjectType.MISS);
+            RayTraceResult hitResult = Minecraft.getMinecraft().objectMouseOver;
+            boolean isBlockSelected = hitResult != null && (hitResult.typeOfHit == RayTraceResult.Type.BLOCK || hitResult.typeOfHit == RayTraceResult.Type.MISS);
 
             if (currentRegionEditingSession != null) {
                 OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
@@ -215,14 +217,14 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                         RegionRenderer.addRegion(new Region(optiCube.getPos()), 0xFF1CDD7A).inflate(1 / 256f).ignoreDepth();
                     }
 
-                    float time = player.ticksExisted + event.partialTicks;
+                    float time = player.ticksExisted + event.getPartialTicks();
                     float animation = MathHelper.sin((float) Math.toRadians(time * 20));
                     RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A).inflate(1 / 16f + animation * 1 / 32f).ignoreDepth().withSides();
                 }
 
                 if (firstRegionPoint != null) {
                     if (isBlockSelected) {
-                        BlockPos secondRegionPoint = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
+                        BlockPos secondRegionPoint = hitResult.getBlockPos();
 
                         RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFFFF9138).inflate(1 / 32f).ignoreDepth();
                         RegionRenderer.addRegion(new Region(secondRegionPoint), 0xFF3590FF).inflate(1 / 32f);
@@ -236,8 +238,8 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                 }
             }
 
-            if (isBlockSelected && player.getEntityWorld().getBlock(hitResult.blockX, hitResult.blockY, hitResult.blockZ) == OptiBlocks.OPTICUBE) {
-                BlockPos blockPos = new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ);
+            if (isBlockSelected && player.getEntityWorld().getBlockState(hitResult.getBlockPos()).getBlock() == OptiBlocks.OPTICUBE) {
+                BlockPos blockPos = hitResult.getBlockPos();
                 OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(blockPos);
                 if (optiCube != null) {
                     radiusEditingOptiCube = optiCube.getPos();
@@ -248,11 +250,10 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
                         time -= currentRadiusEditingSession.getStartTime();
                     }
 
-                    TextPanelRenderer.renderText(
-                        new BlockPos(hitResult.blockX, hitResult.blockY, hitResult.blockZ),
+                    TextPanelRenderer.renderText(hitResult.getBlockPos(),
                         radius == -1 ? "x" : Integer.toString(radius),
                         hitResult.sideHit, currentRadiusEditingSession != null,
-                        time, event.partialTicks
+                        time, event.getPartialTicks()
                     );
                 }
             }

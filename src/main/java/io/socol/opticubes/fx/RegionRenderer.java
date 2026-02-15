@@ -1,16 +1,19 @@
 package io.socol.opticubes.fx;
 
-import cpw.mods.fml.common.eventhandler.EventPriority;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.utils.Region;
 import io.socol.opticubes.utils.TessellatorUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -33,7 +36,7 @@ public class RegionRenderer {
         if (regions.isEmpty()) {
             return;
         }
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = Tessellator.getInstance();
 
         List<FXRegion> ignoreDepthRegions = new ArrayList<>();
         List<FXRegion> regionsWithSides = new ArrayList<>();
@@ -54,6 +57,8 @@ public class RegionRenderer {
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_BLEND);
 
+        BufferBuilder builder = tessellator.getBuffer();
+
         if (!ignoreDepthRegions.isEmpty()) {
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(true);
@@ -63,12 +68,13 @@ public class RegionRenderer {
                 GL11.glEnable(GL11.GL_BLEND);
                 Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_SIDE_TEXTURE);
 
-                tessellator.startDrawingQuads();
-                tessellator.setBrightness(240);
+                builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+                //FIXME port 12
+//                tessellator.setBrightness(240);
                 for (FXRegion region : regionsWithSides) {
                     TessellatorUtils.setColor(region.color);
                     drawSides(
-                            tessellator, region.box, region.inflate,
+                            builder, region.box, region.inflate,
                             -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ
                     );
                 }
@@ -79,12 +85,13 @@ public class RegionRenderer {
                 Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
             }
 
-            tessellator.startDrawingQuads();
-            tessellator.setBrightness(240);
+            builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            //FIXME port 12
+//            tessellator.setBrightness(240);
             for (FXRegion region : ignoreDepthRegions) {
                 TessellatorUtils.setColor(region.color);
                 drawFrame(
-                        tessellator, region.box, region.inflate,
+                        builder, region.box, region.inflate,
                         -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, false
                 );
             }
@@ -95,21 +102,21 @@ public class RegionRenderer {
         }
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(BOX_TEXTURE);
-        tessellator.startDrawingQuads();
-        tessellator.setBrightness(240);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        //FIXME port 12
+//        tessellator.setBrightness(240);
 
         for (FXRegion region : regions) {
             TessellatorUtils.setColor(region.color);
             drawFrame(
-                    tessellator, region.box, region.inflate,
+                    builder, region.box, region.inflate,
                     -TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ, true
             );
         }
 
         tessellator.draw();
-
-        tessellator.setColorRGBA_F(1f, 1f, 1f, 1f);
-        tessellator.setTranslation(0, 0, 0);
+        GlStateManager.color(1, 1,1, 1);
+        builder.setTranslation(0, 0, 0);
         GL11.glEnable(GL11.GL_BLEND);
 
         regions.clear();
@@ -143,67 +150,67 @@ public class RegionRenderer {
         }
     }
 
-    private static void drawSides(Tessellator tessellator, Region box, double inflate, double dx, double dy, double dz) {
+    private static void drawSides(BufferBuilder builder, Region box, double inflate, double dx, double dy, double dz) {
         double sx = box.sizeX();
         double sy = box.sizeY();
         double sz = box.sizeZ();
 
-        tessellator.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
+        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
 
-        tessellator.addVertexWithUV(0, sy, 0, 0, 0);
-        tessellator.addVertexWithUV(sx, sy, 0, sx, 0);
-        tessellator.addVertexWithUV(sx, 0, 0, sx, sy);
-        tessellator.addVertexWithUV(0, 0, 0, 0, sy);
+        builder.pos(0, sy, 0).tex(0, 0);
+        builder.pos(sx, sy, 0).tex(sx, 0);
+        builder.pos(sx, 0, 0).tex(sx, sy);
+        builder.pos(0, 0, 0).tex(0, sy);
 
-        tessellator.addVertexWithUV(sx, sy, sz, -sx, 0);
-        tessellator.addVertexWithUV(0, sy, sz, 0, 0);
-        tessellator.addVertexWithUV(0, 0, sz, 0, sy);
-        tessellator.addVertexWithUV(sx, 0, sz, -sx, sy);
+        builder.pos(sx, sy, sz).tex(-sx, 0);
+        builder.pos(0, sy, sz).tex(0, 0);
+        builder.pos(0, 0, sz).tex(0, sy);
+        builder.pos(sx, 0, sz).tex(-sx, sy);
 
-        tessellator.addVertexWithUV(0, sy, sz, sz, 0);
-        tessellator.addVertexWithUV(0, sy, 0, 0, 0);
-        tessellator.addVertexWithUV(0, 0, 0, 0, sy);
-        tessellator.addVertexWithUV(0, 0, sz, sz, sy);
+        builder.pos(0, sy, sz).tex(sz, 0);
+        builder.pos(0, sy, 0).tex(0, 0);
+        builder.pos(0, 0, 0).tex(0, sy);
+        builder.pos(0, 0, sz).tex(sz, sy);
 
-        tessellator.addVertexWithUV(sx, sy, 0, 0, 0);
-        tessellator.addVertexWithUV(sx, sy, sz, -sz, 0);
-        tessellator.addVertexWithUV(sx, 0, sz, -sz, sy);
-        tessellator.addVertexWithUV(sx, 0, 0, 0, sy);
+        builder.pos(sx, sy, 0).tex(0, 0);
+        builder.pos(sx, sy, sz).tex(-sz, 0);
+        builder.pos(sx, 0, sz).tex(-sz, sy);
+        builder.pos(sx, 0, 0).tex(0, sy);
 
-        tessellator.addVertexWithUV(sx, sy, 0, sx, 0);
-        tessellator.addVertexWithUV(0, sy, 0, 0, 0);
-        tessellator.addVertexWithUV(0, sy, sz, 0, sz);
-        tessellator.addVertexWithUV(sx, sy, sz, sx, sz);
+        builder.pos(sx, sy, 0).tex(sx, 0);
+        builder.pos(0, sy, 0).tex(0, 0);
+        builder.pos(0, sy, sz).tex(0, sz);
+        builder.pos(sx, sy, sz).tex(sx, sz);
 
-        tessellator.addVertexWithUV(0, 0, 0, 0, 0);
-        tessellator.addVertexWithUV(sx, 0, 0, -sx, 0);
-        tessellator.addVertexWithUV(sx, 0, sz, -sx, sz);
-        tessellator.addVertexWithUV(0, 0, sz, 0, sz);
+        builder.pos(0, 0, 0).tex(0, 0);
+        builder.pos(sx, 0, 0).tex(-sx, 0);
+        builder.pos(sx, 0, sz).tex(-sx, sz);
+        builder.pos(0, 0, sz).tex(0, sz);
     }
 
-    private static void drawFrame(Tessellator tessellator, Region box, double inflate, double dx, double dy, double dz, boolean solid) {
+    private static void drawFrame(BufferBuilder builder, Region box, double inflate, double dx, double dy, double dz, boolean solid) {
         double sx = box.sizeX();
         double sy = box.sizeY();
         double sz = box.sizeZ();
 
-        tessellator.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
-        drawSide(tessellator,
+        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
+        drawSide(builder,
                 1, 0, 0,
                 0, 0, 1,
                 0, sy, 0,
                 sx, sz, inflate, solid
         );
 
-        tessellator.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
-        drawSide(tessellator,
+        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
+        drawSide(builder,
                 0, 0, 1,
                 0, 1, 0,
                 sx, 0, 0,
                 sz, sy, inflate, solid
         );
 
-        tessellator.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
-        drawSide(tessellator,
+        builder.setTranslation((float) box.x0 + dx, (float) box.y0 + dy, (float) box.z0 + dz);
+        drawSide(builder,
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, sz,
@@ -211,12 +218,12 @@ public class RegionRenderer {
         );
     }
 
-    private static void drawSide(Tessellator tessellator, double dx1, double dy1, double dz1, double dx2, double dy2, double dz2, double dx3, double dy3, double dz3, double w, double h, double inflate, boolean solid) {
+    private static void drawSide(BufferBuilder builder, double dx1, double dy1, double dz1, double dx2, double dy2, double dz2, double dx3, double dy3, double dz3, double w, double h, double inflate, boolean solid) {
         // delta coords to move first corner
         double ix = (dx1 + dx2) * inflate; // inflate x
         double iy = (dy1 + dy2) * inflate; // inflate y
         double iz = (dz1 + dz2) * inflate; // inflate z
-        tessellator.addTranslation((float) -ix, (float) -iy, (float) -iz);
+        GlStateManager.translate((float) -ix, (float) -iy, (float) -iz);
 
         float delta = (float) (inflate / (dx3 + dy3 + dz3));
 
@@ -253,33 +260,33 @@ public class RegionRenderer {
 
         for (int i = 0; i < 2; i++) {
             if (i == 0) {
-                tessellator.addTranslation((float) -dx3 * delta, (float) -dy3 * delta, (float) -dz3 * delta);
+                GlStateManager.translate((float) -dx3 * delta, (float) -dy3 * delta, (float) -dz3 * delta);
             } else {
                 float d = 1 + 2 * delta;
-                tessellator.addTranslation((float) dx3 * d, (float) dy3 * d, (float) dz3 * d);
+                GlStateManager.translate((float) dx3 * d, (float) dy3 * d, (float) dz3 * d);
             }
 
             double u0 = 0;//(i == 0 ? 1 : -1) * System.currentTimeMillis() % 3000 / 3000f;
 
-            tessellator.addVertexWithUV(0, 0, 0, u0, 0);
-            tessellator.addVertexWithUV(x1, y1, z1, u0 + w, 0);
-            tessellator.addVertexWithUV(x1 + dx2, y1 + dy2, z1 + dz2, u0 + w, u);
-            tessellator.addVertexWithUV(dx2, dy2, dz2, u0, u);
+            builder.pos(0, 0, 0).tex(u0, 0);
+            builder.pos(x1, y1, z1).tex(u0 + w, 0);
+            builder.pos(x1 + dx2, y1 + dy2, z1 + dz2).tex(u0 + w, u);
+            builder.pos(dx2, dy2, dz2).tex( u0, u);
 
-            tessellator.addVertexWithUV(x1, y1, z1, w, u0);
-            tessellator.addVertexWithUV(x2, y2, z2, w, u0 + h);
-            tessellator.addVertexWithUV(x2 - dx1, y2 - dy1, z2 - dz1, w - u, u0 + h);
-            tessellator.addVertexWithUV(x1 - dx1, y1 - dy1, z1 - dz1, w - u, u0);
+            builder.pos(x1, y1, z1).tex( w, u0);
+            builder.pos(x2, y2, z2).tex( w, u0 + h);
+            builder.pos(x2 - dx1, y2 - dy1, z2 - dz1).tex( w - u, u0 + h);
+            builder.pos(x1 - dx1, y1 - dy1, z1 - dz1).tex( w - u, u0);
 
-            tessellator.addVertexWithUV(x2, y2, z2, -u0 + w, h);
-            tessellator.addVertexWithUV(x3, y3, z3, -u0, h);
-            tessellator.addVertexWithUV(x3 - dx2, y3 - dy2, z3 - dz2, -u0, h - u);
-            tessellator.addVertexWithUV(x2 - dx2, y2 - dy2, z2 - dz2, -u0 + w, h - u);
+            builder.pos(x2, y2, z2).tex( -u0 + w, h);
+            builder.pos(x3, y3, z3).tex( -u0, h);
+            builder.pos(x3 - dx2, y3 - dy2, z3 - dz2).tex( -u0, h - u);
+            builder.pos(x2 - dx2, y2 - dy2, z2 - dz2).tex( -u0 + w, h - u);
 
-            tessellator.addVertexWithUV(x3, y3, z3, 0, h - u0);
-            tessellator.addVertexWithUV(0, 0, 0, 0, -u0);
-            tessellator.addVertexWithUV(dx1, dy1, dz1, u, -u0);
-            tessellator.addVertexWithUV(x3 + dx1, y3 + dy1, z3 + dz1, u, h - u0);
+            builder.pos(x3, y3, z3).tex( 0, h - u0);
+            builder.pos(0, 0, 0).tex( 0, -u0);
+            builder.pos(dx1, dy1, dz1).tex( u, -u0);
+            builder.pos(x3 + dx1, y3 + dy1, z3 + dz1).tex( u, h - u0);
         }
     }
 
@@ -287,7 +294,7 @@ public class RegionRenderer {
 
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public void onRender(RenderWorldLastEvent event) {
-            EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
             if (player == null) {
                 return;
             }

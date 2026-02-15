@@ -2,8 +2,8 @@ package io.socol.opticubes.service.editing;
 
 import io.socol.opticubes.OptiFeature;
 import io.socol.opticubes.tiles.TileEntityOptiCube;
-import io.socol.opticubes.utils.pos.BlockPos;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class OptiCubeSettingsEditingSession {
@@ -37,7 +37,7 @@ public class OptiCubeSettingsEditingSession {
     }
 
     public boolean isValid(World world) {
-        TileEntity tileEntity = world.getTileEntity(optiCubePos.getX(), optiCubePos.getY(), optiCubePos.getZ());
+        TileEntity tileEntity = world.getTileEntity(optiCubePos);
         if (!(tileEntity instanceof TileEntityOptiCube)) {
             return false;
         }

@@ -2,8 +2,8 @@ package io.socol.opticubes.service.opti;
 
 import io.socol.opticubes.OptiFeature;
 import io.socol.opticubes.utils.Region;
-import io.socol.opticubes.utils.pos.BlockPos;
-import io.socol.opticubes.utils.pos.ChunkPos;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class OptiRegionMap {
     }
 
     public boolean contains(BlockPos pos, @Nullable OptiFeature feature) {
-        OptiChunk chunk = chunks.get(pos.getChunkPos());
+        OptiChunk chunk = chunks.get(new ChunkPos(pos));
         if (chunk == null) {
             return false;
         }

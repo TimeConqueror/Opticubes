@@ -1,22 +1,19 @@
 package io.socol.opticubes.registry;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.blocks.BlockOptiCube;
+import io.socol.opticubes.utils.EasyRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemBlock;
 
 public class OptiBlocks {
+
+    private static final EasyRegistry REGISTRY = new EasyRegistry(OptiCubes.MODID, CreativeTabs.TOOLS);
 
     public static final Block OPTICUBE = new BlockOptiCube();
 
     public static void register() {
-        registerBlock(OPTICUBE, "opticube");
-    }
-
-    private static void registerBlock(Block block, String id) {
-        block.setBlockName(OptiCubes.MODID + "." + id);
-        block.setCreativeTab(CreativeTabs.tabMisc);
-        GameRegistry.registerBlock(block, id);
+        REGISTRY.registerBlockWithItem(OPTICUBE, "opticube", new ItemBlock(OPTICUBE));
     }
 }

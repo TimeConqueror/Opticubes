@@ -1,22 +1,17 @@
 package io.socol.opticubes.registry;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.items.ItemOptiWrench;
+import io.socol.opticubes.utils.EasyRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
 public class OptiItems {
+    private static final EasyRegistry REGISTRY = new EasyRegistry(OptiCubes.MODID, CreativeTabs.TOOLS);
 
     public static final Item OPTIWRENCH = new ItemOptiWrench();
 
     public static void register() {
-        registerItem(OPTIWRENCH, "optiwrench");
-    }
-
-    private static void registerItem(Item item, String id) {
-        item.setUnlocalizedName(OptiCubes.MODID + "." + id);
-        item.setCreativeTab(CreativeTabs.tabTools);
-        GameRegistry.registerItem(item, id);
+        REGISTRY.registerItem(OPTIWRENCH, "optiwrench");
     }
 }
