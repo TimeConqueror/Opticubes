@@ -10,6 +10,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -156,12 +157,16 @@ public class OptiClientService {
         return regionMap.contains(BlockPosExt.of(entity), OptiFeature.HIDE_ENTITIES);
     }
 
-    public boolean skipSpecialBlockRender(IBlockState state, BlockPos pos) {
+    public boolean skipSpecialBlockRender(IBlockState state, BlockPos pos, IBakedModel model) {
         if(state.isFullBlock()) {
             return false;
         }
 
         if(state.isOpaqueCube()) {
+            return false;
+        }
+
+        if(model.isBuiltInRenderer()) {
             return false;
         }
 

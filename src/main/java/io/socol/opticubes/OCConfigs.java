@@ -17,8 +17,13 @@ public class OCConfigs {
         return MAIN.tilesToSkip.contains(tileClass);
     }
 
+    public static boolean specialBlocksFeatureEnabled() {
+        return MAIN.specialBlocksFeatureEnabled;
+    }
+
     public static class MainConfig extends Config {
         private final HashSet<Class<?>> tilesToSkip = new HashSet<>();
+        private boolean specialBlocksFeatureEnabled;
 
         public MainConfig() {
             super("main");
@@ -45,6 +50,9 @@ public class OCConfigs {
                     }
                 }
             }
+
+            specialBlocksFeatureEnabled = config.getBoolean("special_blocks_feature_enabled", "main", false, "Experimental feature: turns off any non solid blocks, can lead to weird render behaviour");
+
         }
 
         @Override

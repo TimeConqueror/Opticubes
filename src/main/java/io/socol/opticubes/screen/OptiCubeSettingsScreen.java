@@ -1,5 +1,6 @@
 package io.socol.opticubes.screen;
 
+import io.socol.opticubes.OCConfigs;
 import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.OptiFeature;
 import io.socol.opticubes.screen.components.OptiCubeFeatureToggleButton;
@@ -10,6 +11,10 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class OptiCubeSettingsScreen extends GuiScreen {
 
@@ -27,21 +32,32 @@ public class OptiCubeSettingsScreen extends GuiScreen {
     public void initGui() {
         int x0 = (this.width - BACKGROUND_WIDTH) / 2;
         int y0 = (this.height - BACKGROUND_HEIGHT) / 2;
-        for (OptiFeature feature : OptiFeature.values()) {
-            int index = feature.ordinal();
+
+        List<OptiFeature> features = Arrays.stream(OptiFeature.values())
+                .filter(feature -> feature != OptiFeature.HIDE_SPECIAL_BLOCKS || OCConfigs.specialBlocksFeatureEnabled())
+                .collect(Collectors.toList());
+
+        int wholeWidth = (2 + 20) * OptiFeature.values().length + 3 * 2;
+        int width = (2 + 20) * (features.size()) + 3 * 2;
+        int startOffset = wholeWidth == width ? 0 : (wholeWidth - width) / 2;
+
+        int index = 0;
+        for (OptiFeature feature : features) {
+            int x = x0 + startOffset + 3 + index * (2 + 20);
             this.buttonList.add(new OptiCubeFeatureToggleButton(
-                index,
-                x0 + 3 + index * 22,
-                y0 + 17,
-                session,
-                feature
+                    index,
+                    x,
+                    y0 + 17,
+                    session,
+                    feature
             ));
+            index++;
         }
     }
 
     @Override
     protected void actionPerformed(GuiButton button) {
-        if(button instanceof OptiCubeFeatureToggleButton) {
+        if (button instanceof OptiCubeFeatureToggleButton) {
             ((OptiCubeFeatureToggleButton) button).onClick();
         }
     }
@@ -86,8 +102,8 @@ public class OptiCubeSettingsScreen extends GuiScreen {
     public void onGuiClosed() {
         super.onGuiClosed();
         ClientOptiCubeEditingService.getInstance().stopSettingsEditingSession(
-            session.getOptiCubePos(),
-            session.getFeaturesMask()
+                session.getOptiCubePos(),
+                session.getFeaturesMask()
         );
     }
 }
