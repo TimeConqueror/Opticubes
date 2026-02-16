@@ -45,18 +45,31 @@ public class TileEntityOptiCube extends TileEntity {
     }
 
     @Override
+    public NBTTagCompound getUpdateTag() {
+        return writeToNBT(new NBTTagCompound());
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+        readFromNBT(tag);
+
+        if (world != null) {
+            OptiCubes.getOptiClientService().addOptiCube(this);
+        }
+    }
+
+    @Override
     public @Nullable SPacketUpdateTileEntity getUpdatePacket() {
-        NBTTagCompound compound = new NBTTagCompound();
-        writeCommon(compound);
-        return new SPacketUpdateTileEntity(pos, -1, compound);
+        NBTTagCompound tag = new NBTTagCompound();
+        writeCommon(tag);
+        return new SPacketUpdateTileEntity(pos, -1, tag);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-        if (pkt.getNbtCompound() != null) {
-            readCommon(pkt.getNbtCompound());
-        }
-        if (world != null && world.isRemote) {
+        readCommon(pkt.getNbtCompound());
+
+        if (world != null) {
             OptiCubes.getOptiClientService().addOptiCube(this);
         }
     }
@@ -107,7 +120,7 @@ public class TileEntityOptiCube extends TileEntity {
         if (world != null && !world.isRemote) {
             this.markDirty();
             IBlockState state = world.getBlockState(pos);
-            world.notifyBlockUpdate(pos, state, state, 3);
+            world.notifyBlockUpdate(pos, state, state, 2);
         }
     }
 }

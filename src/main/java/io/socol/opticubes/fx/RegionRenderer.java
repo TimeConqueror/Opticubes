@@ -107,8 +107,6 @@ public class RegionRenderer {
         //FIXME port 12
 //        tessellator.setBrightness(240);
 
-        System.out.println("Drawing " + regions.size() + "  regions...");
-
         for (FXRegion region : regions) {
             sink.color(region.argbColor);
             drawFrame(
