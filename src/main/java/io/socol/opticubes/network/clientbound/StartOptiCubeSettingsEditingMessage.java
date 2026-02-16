@@ -3,6 +3,7 @@ package io.socol.opticubes.network.clientbound;
 import io.netty.buffer.ByteBuf;
 import io.socol.opticubes.proxy.ClientProxy;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -45,12 +46,14 @@ public class StartOptiCubeSettingsEditingMessage implements IMessage {
 
         @Override
         public IMessage onMessage(StartOptiCubeSettingsEditingMessage message, MessageContext ctx) {
-            World world = ClientProxy.world();
-            if (world != null) {
-                ClientOptiCubeEditingService.getInstance().startSettingsEditingSession(
-                    world, message.optiCubePos,  message.featuresMask
-                );
-            }
+            ClientProxy.runOnMainThread(() -> {
+                World world = ClientProxy.world();
+                if (world != null) {
+                    ClientOptiCubeEditingService.getInstance().startSettingsEditingSession(
+                            world, message.optiCubePos,  message.featuresMask
+                    );
+                }
+            });
             return null;
         }
     }

@@ -49,4 +49,8 @@ public class ClientProxy extends CommonProxy {
 
         ClientCommandHandler.instance.registerCommand(new OCClientCommand());
     }
+
+    public static void runOnMainThread(Runnable task) {
+        Minecraft.getMinecraft().addScheduledTask(task);
+    }
 }

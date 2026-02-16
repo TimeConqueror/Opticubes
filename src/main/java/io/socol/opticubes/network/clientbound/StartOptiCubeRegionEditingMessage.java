@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.socol.opticubes.proxy.ClientProxy;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
 import io.socol.opticubes.service.editing.OptiCubeRegionType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -46,10 +47,12 @@ public class StartOptiCubeRegionEditingMessage implements IMessage {
 
         @Override
         public IMessage onMessage(StartOptiCubeRegionEditingMessage message, MessageContext ctx) {
-            World world = ClientProxy.world();
-            if (world != null) {
-                ClientOptiCubeEditingService.getInstance().startNewRegionEditingSession(message.optiCubePos, message.regionType, world);
-            }
+            ClientProxy.runOnMainThread(() -> {
+                World world = ClientProxy.world();
+                if (world != null) {
+                    ClientOptiCubeEditingService.getInstance().startNewRegionEditingSession(message.optiCubePos, message.regionType, world);
+                }
+            });
             return null;
         }
     }

@@ -1,7 +1,9 @@
 package io.socol.opticubes.network.clientbound;
 
 import io.netty.buffer.ByteBuf;
+import io.socol.opticubes.proxy.ClientProxy;
 import io.socol.opticubes.service.editing.ClientOptiCubeEditingService;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -28,7 +30,9 @@ public class ResetOptiCubeEditingMessage implements IMessage {
 
         @Override
         public IMessage onMessage(ResetOptiCubeEditingMessage message, MessageContext ctx) {
-            ClientOptiCubeEditingService.getInstance().reset();
+            ClientProxy.runOnMainThread(() -> {
+                ClientOptiCubeEditingService.getInstance().reset();
+            });
             return null;
         }
     }

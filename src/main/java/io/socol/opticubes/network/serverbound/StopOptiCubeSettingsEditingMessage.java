@@ -2,6 +2,7 @@ package io.socol.opticubes.network.serverbound;
 
 import io.netty.buffer.ByteBuf;
 import io.socol.opticubes.OptiCubes;
+import io.socol.opticubes.proxy.CommonProxy;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
@@ -45,8 +46,10 @@ public class StopOptiCubeSettingsEditingMessage implements IMessage {
 
         @Override
         public IMessage onMessage(StopOptiCubeSettingsEditingMessage message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().player;
-            OptiCubes.getEditingService().stopSettingsEditingSession(player, message.optiCubePos, message.featuresMask);
+            CommonProxy.runOnMainThread(ctx, () -> {
+                EntityPlayerMP player = ctx.getServerHandler().player;
+                OptiCubes.getEditingService().stopSettingsEditingSession(player, message.optiCubePos, message.featuresMask);
+            });
             return null;
         }
     }
