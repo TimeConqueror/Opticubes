@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.socol.opticubes.utils.Config;
 
-@Mod(modid = OptiCubes.MODID, version = OptiCubes.VERSION)
+@Mod(modid = OptiCubes.MODID, version = OptiCubes.VERSION, dependencies = "required:mixinbooter@[10.6,);")
 public class OptiCubes {
     public static final String MODID = "opticubes";
     public static final String VERSION = "GRADLETOKEN_VERSION";

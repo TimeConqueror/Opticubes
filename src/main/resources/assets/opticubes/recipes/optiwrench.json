@@ -11,12 +11,12 @@
     "L":
     {
       "type": "forge:ore_dict",
-      "ore": "ingotIron"
+      "ore": "gemLapis"
     },
     "#":
     {
       "type": "forge:ore_dict",
-      "ore": "gemLapis"
+      "ore": "ingotIron"
     }
   },
   "result":
