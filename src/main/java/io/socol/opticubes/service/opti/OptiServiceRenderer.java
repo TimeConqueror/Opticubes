@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class OptiServiceRenderer {
 
-    public static void render(OptiClientService service, float partialTicks) {
+    public static void render(OptiClientService service, float partialTick) {
         Minecraft mc = Minecraft.getMinecraft();
         RenderManager renderManager = mc.getRenderManager();
         EntityPlayerSP player = mc.player;

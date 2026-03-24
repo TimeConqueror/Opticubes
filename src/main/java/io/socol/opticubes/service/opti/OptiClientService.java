@@ -16,11 +16,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -30,11 +25,6 @@ public class OptiClientService {
     private final Map<BlockPos, OptiCube> optiCubes = new HashMap<>();
 
     private final OptiRegionMap regionMap = new OptiRegionMap();
-
-    public OptiClientService() {
-        MinecraftForge.EVENT_BUS.register(new ForgeListener());
-        MinecraftForge.EVENT_BUS.register(new EventListener());
-    }
 
     public void addOptiCube(TileEntityOptiCube tile) {
         BlockPos optiCubePos = tile.getPos();
@@ -121,7 +111,7 @@ public class OptiClientService {
         }
     }
 
-    private void clearOptiCubes() {
+    public void clearOptiCubes() {
         optiCubes.clear();
         regionMap.clear();
     }
@@ -173,58 +163,33 @@ public class OptiClientService {
         return regionMap.contains(pos, OptiFeature.HIDE_SPECIAL_BLOCKS);
     }
 
-    public class ForgeListener {
-        @SubscribeEvent
-        public void onTick(TickEvent.ClientTickEvent event) {
-            EntityPlayerSP player = Minecraft.getMinecraft().player;
-            if (player == null || event.phase != TickEvent.Phase.END) {
-                return;
-            }
-
-            double cameraX = player.posX;
-            double cameraY = player.posY + player.getEyeHeight();
-            double cameraZ = player.posZ;
-
-            Set<BlockPos> blocksToUpdate = new HashSet<>();
-
-            for (OptiCube optiCube : optiCubes.values()) {
-                if (optiCube.checkEnabled(player.getEntityWorld(), cameraX, cameraY, cameraZ)) {
-                    if (optiCube.isFeatureEnabled(OptiFeature.HIDE_SPECIAL_BLOCKS)) {
-                        blocksToUpdate.addAll(optiCube.getAffectedMicroChunks());
-                    }
-                }
-            }
-
-            //FIXME if we should really set markBlocksForUpdate every tick?
-            for (BlockPos pos : blocksToUpdate) {
-                RenderGlobalExt renderGlobal = ClientMixinAccessor.get(Minecraft.getMinecraft().renderGlobal);
-                renderGlobal.callMarkBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ(), true);
-            }
-        }
-
-        @SubscribeEvent
-        public void onPlayerChangeWorld(PlayerEvent.PlayerChangedDimensionEvent event) {
-            clearOptiCubes();
-        }
-
-        @SubscribeEvent
-        public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-            clearOptiCubes();
-        }
-    }
-
     public Map<BlockPos, OptiCube> getOptiCubes() {
         return optiCubes;
     }
 
-    public class EventListener {
-        @SubscribeEvent
-        public void onRender(RenderWorldLastEvent event) {
-            OptiServiceRenderer.render(OptiClientService.this, event.getPartialTicks());
-        }
-    }
-
     public OptiCube getOptiCube(BlockPos blockPos) {
         return optiCubes.get(blockPos);
+    }
+
+    public void onClientTickEnd(EntityPlayerSP player) {
+        double cameraX = player.posX;
+        double cameraY = player.posY + player.getEyeHeight();
+        double cameraZ = player.posZ;
+
+        Set<BlockPos> blocksToUpdate = new HashSet<>();
+
+        for (OptiCube optiCube : optiCubes.values()) {
+            if (optiCube.checkEnabled(player.getEntityWorld(), cameraX, cameraY, cameraZ)) {
+                if (optiCube.isFeatureEnabled(OptiFeature.HIDE_SPECIAL_BLOCKS)) {
+                    blocksToUpdate.addAll(optiCube.getAffectedMicroChunks());
+                }
+            }
+        }
+
+        //FIXME if we should really set markBlocksForUpdate every tick?
+        for (BlockPos pos : blocksToUpdate) {
+            RenderGlobalExt renderGlobal = ClientMixinAccessor.get(Minecraft.getMinecraft().renderGlobal);
+            renderGlobal.callMarkBlocksForUpdate(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ(), true);
+        }
     }
 }

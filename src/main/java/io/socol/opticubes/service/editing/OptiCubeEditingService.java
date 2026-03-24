@@ -26,10 +26,6 @@ public class OptiCubeEditingService {
     private final Map<UUID, OptiCubeRegionEditingSession> regionEditingSessions = new HashMap<>();
     private final Map<UUID, OptiCubeSettingsEditingSession> settingsEditingSessions = new HashMap<>();
 
-    public OptiCubeEditingService() {
-        MinecraftForge.EVENT_BUS.register(new ForgeListener());
-    }
-
     public void startRegionEditingSession(EntityPlayerMP player, BlockPos opiCubePos, OptiCubeRegionType type) {
         regionEditingSessions.put(player.getUniqueID(), new OptiCubeRegionEditingSession(
                 opiCubePos,
@@ -90,7 +86,7 @@ public class OptiCubeEditingService {
 
     }
 
-    protected void resetPlayer(EntityPlayer player) {
+    private void resetPlayer(EntityPlayer player) {
         regionEditingSessions.remove(player.getUniqueID());
         settingsEditingSessions.remove(player.getUniqueID());
     }
@@ -100,17 +96,12 @@ public class OptiCubeEditingService {
         settingsEditingSessions.clear();
     }
 
-    //FIXME check if works
-    public class ForgeListener {
-        @SubscribeEvent
-        public void onPlayerChangeWorld(PlayerEvent.PlayerChangedDimensionEvent event) {
-            resetPlayer(event.player);
-            OptiNetwork.INSTANCE.sendTo(new ResetOptiCubeEditingMessage(), (EntityPlayerMP) event.player);
-        }
+    public void onServerPlayerChangedDimension(EntityPlayerMP player) {
+        resetPlayer(player);
+        OptiNetwork.INSTANCE.sendTo(new ResetOptiCubeEditingMessage(), player);
+    }
 
-        @SubscribeEvent
-        public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-            resetPlayer(event.player);
-        }
+    public void onServerPlayerLogout(EntityPlayerMP player) {
+        resetPlayer(player);
     }
 }

@@ -4,8 +4,8 @@ import io.socol.opticubes.OptiCubes;
 import io.socol.opticubes.fx.RegionRenderer;
 import io.socol.opticubes.fx.TextPanelRenderer;
 import io.socol.opticubes.items.ItemOptiWrench;
-import io.socol.opticubes.network.serverbound.StopOptiCubeSettingsEditingMessage;
 import io.socol.opticubes.network.serverbound.StopOptiCubeRegionEditingMessage;
+import io.socol.opticubes.network.serverbound.StopOptiCubeSettingsEditingMessage;
 import io.socol.opticubes.proxy.ClientProxy;
 import io.socol.opticubes.registry.OptiBlocks;
 import io.socol.opticubes.registry.OptiNetwork;
@@ -20,11 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class ClientOptiCubeEditingService extends OptiCubeEditingService {
@@ -34,11 +29,6 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
     private OptiCubeRadiusEditingSession currentRadiusEditingSession = null;
     private BlockPos radiusEditingOptiCube = null;
-
-    public ClientOptiCubeEditingService() {
-        MinecraftForge.EVENT_BUS.register(new ForgeListener());
-        MinecraftForge.EVENT_BUS.register(new EventListener());
-    }
 
     public OptiCubeRegionEditingSession getCurrentRegionEditingSession() {
         return currentRegionEditingSession;
@@ -129,8 +119,8 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         }
         if (currentRadiusEditingSession == null) {
             currentRadiusEditingSession = new OptiCubeRadiusEditingSession(
-                optiCube.getPos(), optiCube.getRadius(),
-                player.ticksExisted
+                    optiCube.getPos(), optiCube.getRadius(),
+                    player.ticksExisted
             );
         }
         currentRadiusEditingSession.modifyRadius(Integer.compare(i, 0));
@@ -145,9 +135,9 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
 
     public void startSettingsEditingSession(World world, BlockPos optiCubePos, long featuresMask) {
         OptiCubeSettingsEditingSession session = new OptiCubeSettingsEditingSession(
-            optiCubePos,
-            world.getTotalWorldTime(),
-            featuresMask
+                optiCubePos,
+                world.getTotalWorldTime(),
+                featuresMask
         );
         Minecraft.getMinecraft().displayGuiScreen(new OptiCubeSettingsScreen(session));
     }
@@ -156,107 +146,94 @@ public class ClientOptiCubeEditingService extends OptiCubeEditingService {
         OptiNetwork.INSTANCE.sendToServer(new StopOptiCubeSettingsEditingMessage(optiCubePos, featuresMask));
     }
 
-    //fixme check
-    public class ForgeListener {
-        @SubscribeEvent
-        public void onTick(TickEvent.ClientTickEvent event) {
-            EntityPlayerSP player = Minecraft.getMinecraft().player;
-            if (player == null || event.phase != TickEvent.Phase.END) {
-                return;
+    public void onClientTickEnd(EntityPlayerSP player) {
+        if (currentRadiusEditingSession != null) {
+            OptiCube optiCube = checkRadiusEditingSession(player);
+            if (optiCube == null) {
+                stopRadiusEditingSession();
+            } else {
+                currentRadiusEditingSession.update(player.ticksExisted);
             }
-            if (currentRadiusEditingSession != null) {
-                OptiCube optiCube = checkRadiusEditingSession(player);
-                if (optiCube == null) {
-                    stopRadiusEditingSession();
-                } else {
-                    currentRadiusEditingSession.update(player.ticksExisted);
+        }
+        if (currentRegionEditingSession != null) {
+            OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
+            if (optiCube == null) {
+                stopRegionEditingSession(null);
+            }
+        }
+    }
+
+    public void onDisconnectFromServer() {
+        reset();
+        // reset all player on integrated server due to host leave (does nothing if player left from dedicated server)
+        resetAllPlayers();
+    }
+
+    public void render(float partialTick) {
+        radiusEditingOptiCube = null;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if (player == null) {
+            return;
+        }
+
+        ItemStack held = player.getHeldItem(EnumHand.MAIN_HAND);
+        if (!ItemOptiWrench.isOptiWrench(held)) {
+            return;
+        }
+
+        RayTraceResult hitResult = Minecraft.getMinecraft().objectMouseOver;
+        boolean isBlockSelected = hitResult != null && (hitResult.typeOfHit == RayTraceResult.Type.BLOCK || hitResult.typeOfHit == RayTraceResult.Type.MISS);
+
+        if (currentRegionEditingSession != null) {
+            OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
+            if (optiCube != null) {
+                if (optiCube.hasExternalRegion()) {
+                    RegionRenderer.addRegion(new Region(optiCube.getPos()), 0xFF1CDD7A).inflate(1 / 256f).ignoreDepth();
                 }
+
+                float time = player.ticksExisted + partialTick;
+                float animation = MathHelper.sin((float) Math.toRadians(time * 20));
+                RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A).inflate(1 / 16f + animation * 1 / 32f).ignoreDepth().withSides();
             }
-            if (currentRegionEditingSession != null) {
-                OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
-                if (optiCube == null) {
-                    stopRegionEditingSession(null);
+
+            if (firstRegionPoint != null) {
+                if (isBlockSelected) {
+                    BlockPos secondRegionPoint = hitResult.getBlockPos();
+
+                    RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFFFF9138).inflate(1 / 32f).ignoreDepth();
+                    RegionRenderer.addRegion(new Region(secondRegionPoint), 0xFF3590FF).inflate(1 / 32f);
+
+                    Region selectedRegion = new Region(firstRegionPoint, secondRegionPoint);
+                    boolean regionValid = currentRegionEditingSession.validateRegion(player, selectedRegion, false);
+                    RegionRenderer.addRegion(selectedRegion, regionValid ? 0xFFFFFFFF : 0xFFE52B50).inflate(1 / 256f).ignoreDepth().withSides();
+                } else {
+                    RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFF3590FF).inflate(1 / 32f).ignoreDepth();
                 }
             }
         }
 
-        @SubscribeEvent
-        public void onPlayerLeave(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
-            reset();
-            // reset all player on integrated server due to host leave (does nothing if player left from dedicated server)
-            resetAllPlayers();
+        if (isBlockSelected && player.getEntityWorld().getBlockState(hitResult.getBlockPos()).getBlock() == OptiBlocks.OPTICUBE) {
+            BlockPos blockPos = hitResult.getBlockPos();
+            OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(blockPos);
+            if (optiCube != null) {
+                radiusEditingOptiCube = optiCube.getPos();
+                int radius = optiCube.getRadius();
+                int time = player.ticksExisted;
+                if (currentRadiusEditingSession != null && currentRadiusEditingSession.getOptiCubePos().equals(blockPos)) {
+                    radius = currentRadiusEditingSession.getRadius();
+                    time -= currentRadiusEditingSession.getStartTime();
+                }
+
+                TextPanelRenderer.renderText(hitResult.getBlockPos(),
+                        radius == -1 ? "x" : Integer.toString(radius),
+                        hitResult.sideHit, currentRadiusEditingSession != null,
+                        time, partialTick
+                );
+            }
         }
     }
 
     public BlockPos getRadiusEditingOptiCube() {
         return radiusEditingOptiCube;
-    }
-
-    //fixme check
-    public class EventListener {
-        @SubscribeEvent
-        public void onRender(RenderWorldLastEvent event) {
-            radiusEditingOptiCube = null;
-            EntityPlayerSP player = Minecraft.getMinecraft().player;
-            if (player == null) {
-                return;
-            }
-
-            ItemStack held = player.getHeldItem(EnumHand.MAIN_HAND);
-            if (!ItemOptiWrench.isOptiWrench(held)) {
-                return;
-            }
-
-            RayTraceResult hitResult = Minecraft.getMinecraft().objectMouseOver;
-            boolean isBlockSelected = hitResult != null && (hitResult.typeOfHit == RayTraceResult.Type.BLOCK || hitResult.typeOfHit == RayTraceResult.Type.MISS);
-
-            if (currentRegionEditingSession != null) {
-                OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(currentRegionEditingSession.getOptiCubePos());
-                if (optiCube != null) {
-                    if (optiCube.hasExternalRegion()) {
-                        RegionRenderer.addRegion(new Region(optiCube.getPos()), 0xFF1CDD7A).inflate(1 / 256f).ignoreDepth();
-                    }
-
-                    float time = player.ticksExisted + event.getPartialTicks();
-                    float animation = MathHelper.sin((float) Math.toRadians(time * 20));
-                    RegionRenderer.addRegion(optiCube.getRegion(), 0xFF1CDD7A).inflate(1 / 16f + animation * 1 / 32f).ignoreDepth().withSides();
-                }
-
-                if (firstRegionPoint != null) {
-                    if (isBlockSelected) {
-                        BlockPos secondRegionPoint = hitResult.getBlockPos();
-
-                        RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFFFF9138).inflate(1 / 32f).ignoreDepth();
-                        RegionRenderer.addRegion(new Region(secondRegionPoint), 0xFF3590FF).inflate(1 / 32f);
-
-                        Region selectedRegion = new Region(firstRegionPoint, secondRegionPoint);
-                        boolean regionValid = currentRegionEditingSession.validateRegion(player, selectedRegion, false);
-                        RegionRenderer.addRegion(selectedRegion, regionValid ? 0xFFFFFFFF : 0xFFE52B50).inflate(1 / 256f).ignoreDepth().withSides();
-                    } else {
-                        RegionRenderer.addRegion(new Region(firstRegionPoint), 0xFF3590FF).inflate(1 / 32f).ignoreDepth();
-                    }
-                }
-            }
-
-            if (isBlockSelected && player.getEntityWorld().getBlockState(hitResult.getBlockPos()).getBlock() == OptiBlocks.OPTICUBE) {
-                BlockPos blockPos = hitResult.getBlockPos();
-                OptiCube optiCube = OptiCubes.getOptiClientService().getOptiCube(blockPos);
-                if (optiCube != null) {
-                    radiusEditingOptiCube = optiCube.getPos();
-                    int radius = optiCube.getRadius();
-                    int time = player.ticksExisted;
-                    if (currentRadiusEditingSession != null && currentRadiusEditingSession.getOptiCubePos().equals(blockPos)) {
-                        radius = currentRadiusEditingSession.getRadius();
-                        time -= currentRadiusEditingSession.getStartTime();
-                    }
-
-                    TextPanelRenderer.renderText(hitResult.getBlockPos(),
-                        radius == -1 ? "x" : Integer.toString(radius),
-                        hitResult.sideHit, currentRadiusEditingSession != null,
-                        time, event.getPartialTicks()
-                    );
-                }
-            }
-        }
     }
 }
