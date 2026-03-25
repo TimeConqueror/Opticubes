@@ -1,0 +1,25 @@
+# Blocks
+tile.opticubes.opticube.name=优化立方
+# Items
+item.opticubes.optiwrench.name=优化扳手
+# Usage
+item.opticubes.optiwrench.usage.held=主手持有以查看优化立方的作用区域
+item.opticubes.optiwrench.usage.start_region_editing=<潜行+右击>优化立方以编辑其作用区域
+item.opticubes.optiwrench.usage.stop_region_editing=<潜行+右击>任意方块以停止区域编辑
+item.opticubes.optiwrench.usage.create_region=区域编辑期间，<右击>任意两个方块以定义区域
+item.opticubes.optiwrench.usage.change_radius=对准优化立方并滚动滚轮以更改其作用半径
+item.opticubes.optiwrench.usage.start_settings_editing=<潜行+左击>优化立方以编辑其设置
+
+chat.opticubes.region_too_big=区域过大（%sx%sx%s）。最大尺寸为%sx%sx%s。
+chat.opticubes.owner_cube_far_away=绑定的优化立方应位于区域内，或与区域相邻。
+
+opticubes.command.usage=使用'/opticubes help'以查看可用的子命令
+opticubes.command.reloadconfigs.success=配置文件已重新加载
+opticubes.command.reloadconfigs.usage=%s - 重新加载所有优化立方的配置
+opticubes.command.help.usage=%s - 显示帮助菜单
+
+opticubes.feature.hide_tiles=隐藏方块
+opticubes.feature.hide_particles=隐藏粒子
+opticubes.feature.hide_entities=隐藏实体
+opticubes.feature.hide_dropped_items=隐藏掉落物
+opticubes.feature.hide_special_blocks=隐藏特殊方块
